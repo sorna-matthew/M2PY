@@ -8,7 +8,7 @@ Created on Mon Feb  5 14:28:34 2018
 import serial
 import time
 
-fd = 'C:/Users/lab/Desktop/Users/Matt/Bistable_Sorna_gcode.txt'
+fd = 'C:/Users/lab/Desktop/Users/Matt/m2-python/trunk/Bistable_Sorna_gcode.txt'
 
 #Create and define serial port parameters
 
