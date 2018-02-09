@@ -8,8 +8,20 @@ This project allows for the direct control of [Makergear's M2 3D printer](https:
 ---
 
 **Function Descriptions**
-* **gcodeprmpt**: allows for quick serial communication with the M2, provided that the proper COM port and baud rate are selected, and match what is found in system settings. To exit the command prompt environment, just type `exit` in the IPython console
-* **gcoderead**: reads in a text file of gcode line by line, and waits for the M2 to acknowledge that it received the command before sending another, maintaining print accuracy
-* **gcoderead_comment**: similar to **gcoderead**, except with the added functionality of accepting command lines in the GCode text file which are meant to be excecuted by Python
+* **gcodeprmpt**: allows for quick serial communication with the M2, provided that the proper COM port and baud rate are selected, and match what is found in system settings. To exit the command prompt environment, just type `exit` in the IPython console.
+* **gcoderead**: reads in a text file of gcode line by line, and waits for the M2 to acknowledge that it received the command before sending another, maintaining print accuracy.
+* **gcoderead_comment**: similar to **gcoderead**, except with the added functionality of accepting command lines in the GCode text file which are meant to be excecuted by Python.
 
+Example GCode using **gcoderead_comment**:
+
+~~~~ 
+G91
+$DON'T RUN ME
+G1 X10
+G1 X-10
+$TEST COMMENT
+G1 Y10
+G1 Y-10
+$THIS COULD BE USED FOR EXTERNAL CONTROL VIA PYTHON
+~~~~
 ---
