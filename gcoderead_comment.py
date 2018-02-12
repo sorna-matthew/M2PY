@@ -13,7 +13,7 @@ fd = 'C:/Users/lab/Desktop/Users/Matt/m2-python/trunk/comment_test.txt'
 #Create and define serial port parameters
 
 ser = serial.Serial('COM7', 115200, timeout = 100)
-nordson = serial.Serial('COM5', 115200)
+#nordson = serial.Serial('COM5', 115200)
 time.sleep(2) # Make sure to give it enough time to initialize
 
 print('Serial port initialized')
