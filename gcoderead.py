@@ -8,11 +8,11 @@ Created on Mon Feb  5 14:28:34 2018
 import serial
 import time
 
-fd = 'C:/Users/lab/Desktop/Users/Matt/m2-python/trunk/comment_test.txt'
+fd = 'C:/Users/Matthew/Documents/m2-python/trunk/toggle.txt'
 
 #Create and define serial port parameters
 
-ser = serial.Serial('COM7', 115200, timeout = 100)
+ser = serial.Serial('COM6', 115200, timeout = 100)
 time.sleep(2) # Make sure to give it enough time to initialize
 
 print('Serial port initialized')

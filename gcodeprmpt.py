@@ -12,7 +12,7 @@ escape = 0;
 cmd = ''
 
 #Create and define serial port parameters
-ser = serial.Serial('COM7', 115200, timeout = 0)
+ser = serial.Serial('COM6', 115200, timeout = 0)
 time.sleep(2) # Make sure to give it enough time to initialize
 print("Enter a GCode command. To exit, type \'exit\'")
 
