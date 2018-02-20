@@ -9,15 +9,37 @@ Created on Mon Feb 19 18:59:06 2018
 import serial
 import time
 
-def prompt(COM, BAUD):
+def m2open(com, baud):
+    ser = serial.Serial(com, baud, timeout = 0)
+    time.sleep(2) # Make sure to give it enough time to initialize
+    print('Serial port connected!')
+    for x in range(21): # Reads in all 21 lines of initalization text for the M2
+        ser.readline()
+    return ser
+    
+def m2close(ser):
+    print("Serial port disconnected!")
+    ser.close()
+    
+def m2move(ser, x, y, z):
+    ser.write(str.encode('G1 X{} Y{} Z{}\r\n'.format(x, y, z)))
+    print('G1 X{} Y{} Z{}\r\n'.format(x, y, z))
+    
+
+def m2speed(ser, speed):
+    ser.write(str.encode('G1 F{}\r\n'.format(speed)))
+    print('Changing movement speed to {} mm/s'.format(speed))
+
+
+def m2prompt(com, baud):
     """
-    Creates a serial connection with the printer found at the specified COM and at the given BAUD, and allows for GCode commands to be sent
+    Creates a serial connection with the printer found at the specified com and at the given baud, and allows for GCode commands to be sent
     """
     escape = 0;
     cmd = ''
     
     #Create and define serial port parameters
-    ser = serial.Serial(COM, BAUD, timeout = 0)
+    ser = serial.Serial(com, baud, timeout = 0)
     time.sleep(2) # Make sure to give it enough time to initialize
     print("Enter a GCode command. To exit, type \'exit\'")
     
@@ -30,12 +52,12 @@ def prompt(COM, BAUD):
         else:
             ser.write(str.encode('{}\r\n'.format(cmd)))
 
-def fread(fid, COM, BAUD):
+def m2fileread(fid, com, baud):
     """
-    Reads in and sends an entire GCode txt file to the specified printer at the given BAUD 
+    Reads in and sends an entire GCode txt file to the specified printer at the given baud 
     """
     #Create and define serial port parameters
-    ser = serial.Serial(COM, BAUD, timeout = 100)
+    ser = serial.Serial(com, baud, timeout = 100)
     time.sleep(2) # Make sure to give it enough time to initialize
     
     print('Serial port initialized')
