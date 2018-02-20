@@ -7,7 +7,7 @@ This project allows for the direct control of [Makergear's M2 3D printer](https:
 
 ---
 **m2py** *(a Python module)*
-*Function descriptions*
+*function descriptions*:
 * **m2py.prompt**(*COM*, *BAUD*): allows for quick serial communication with the M2, provided that the proper COM port and baud rate are selected, and match what is found in system settings. To exit the command prompt environment, just type `exit` in the IPython console.
 ```python
 import m2py
