@@ -11,14 +11,12 @@ import time
 fd = 'C:/Users/Matthew/Documents/m2-python/trunk/toggle.txt'
 
 #Create and define serial port parameters
-
 ser = serial.Serial('COM6', 115200, timeout = 100)
 time.sleep(2) # Make sure to give it enough time to initialize
 
 print('Serial port initialized')
 for x in range(21): # Reads in all 21 lines of initalization text for the M2
-    init = ser.readline()
-    #print(init)
+    ser.readline()
 print('Beginning print')
 with open(fd, "r") as gcode:
     for line in gcode:
