@@ -9,6 +9,8 @@ Created on Mon Feb 19 18:59:06 2018
 import serial
 import time
 
+# MODULE FUNCTION DEFINITIONS
+
 def mopen(com, baud):
     ser = serial.Serial(com, baud, timeout = 0)
     time.sleep(2) # Make sure to give it enough time to initialize
@@ -38,11 +40,9 @@ def home(ser, axes = 'X Y Z'):
     ser.write(str.encode('G28 {}\r\n'.format(axes)))
     print('{} axes homed!'.format(axes))
     
-
 def speed(ser, speed):
     ser.write(str.encode('G1 F{}\r\n'.format(speed)))
     print('Changing movement speed to {} mm/s'.format(speed))
-
 
 def prompt(com, baud):
     """
