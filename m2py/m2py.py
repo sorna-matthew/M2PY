@@ -88,119 +88,119 @@ def speed(ser, speed):
 def arc(ser, x = 0, y = 0, i = 0, j = 0, direction = 'ccw'):
     if direction == 'ccw':
         ser.write(str.encode('G3 X{} Y{} I{} J{}\r\n'.format(x, y, i, j)))
-		read = b''
-		while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
-			read = ser.readline()
+        read = b''
+        while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
+            read = ser.readline()
         print('CCW arc to ({}, {}), center at ({}, {})'.format(x, y, i, j))
     elif direction == 'cw':
         ser.write(str.encode('G2 X{} Y{} I{} J{}\r\n'.format(x, y, i, j)))
-		read = b''
-		while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
-			read = ser.readline()
+        read = b''
+        while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
+            read = ser.readline()
         print('CW arc to ({}, {}), center at ({}, {})'.format(x, y, i, j))
         
 # G4
 def wait(ser, seconds):
     ser.write(str.encode('G4 S{}\r\n'.format(seconds)))
-	read = b''
-		while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
-			read = ser.readline()
+    read = b''
+    while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
+            read = ser.readline()
     print('Waiting for {} seconds'.format(seconds))
 
 # G28
 def home(ser, axes = 'X Y Z'):
     ser.write(str.encode('G28 {}\r\n'.format(axes)))
-	read = b''
-		while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
-			read = ser.readline()
+    read = b''
+    while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
+            read = ser.readline()
     print('{} axes homed'.format(axes))
         
 # G90/G91
 def coord(ser, coord = 'abs'):
     if coord == 'abs':
         ser.write(str.encode('G90\r\n'))
-		read = b''
-		while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
-			read = ser.readline()
+        read = b''
+        while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
+            read = ser.readline()
         print('Set to absolute coordinates')
         
     elif coord == 'rel':
         ser.write(str.encode('G91\r\n'))
-		read = b''
-		while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
-			read = ser.readline()
+        read = b''
+        while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
+            read = ser.readline()
         print('Set to relative coordinates')    
 
 # CORE SHELL SPECIFIC FUNCTIONS
 
 def allon(ser):
         ser.write(str.encode('M3\r\n'))
-		read = b''
-		while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
-			read = ser.readline()
+        read = b''
+        while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
+            read = ser.readline()
         ser.write(str.encode('M5\r\n'))
-		read = b''
-		while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
-			read = ser.readline()
+        read = b''
+        while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
+            read = ser.readline()
         ser.write(str.encode('M7\r\n'))
-		read = b''
-		while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
-			read = ser.readline()
+        read = b''
+        while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
+            read = ser.readline()
         print('All Channels ON')
 
 def alloff(ser):
         ser.write(str.encode('M4\r\n'))
-		read = b''
-		while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
-			read = ser.readline()
+        read = b''
+        while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
+            read = ser.readline()
         ser.write(str.encode('M6\r\n'))
-		read = b''
-		while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
-			read = ser.readline()
+        read = b''
+        while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
+            read = ser.readline()
         ser.write(str.encode('M8\r\n'))
-		read = b''
-		while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
-			read = ser.readline()
+        read = b''
+        while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
+            read = ser.readline()
         print('All Channels OFF') 
         
 def ch1on(ser):
         ser.write(str.encode('M3\r\n'))
-		read = b''
-		while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
-			read = ser.readline()
+        read = b''
+        while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
+            read = ser.readline()
         print('Channel 1 ON')
 
 def ch1off(ser):
         ser.write(str.encode('M4\r\n'))
-		read = b''
-		while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
-			read = ser.readline()
+        read = b''
+        while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
+            read = ser.readline()
         print('Channel 1 OFF')
         
 def ch2on(ser):
         ser.write(str.encode('M5\r\n'))
-		read = b''
-		while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
-			read = ser.readline()
-        print('Channel 1 ON')
+        read = b''
+        while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
+            read = ser.readline()
+        print('Channel 2 ON')
 
 def ch2off(ser):
         ser.write(str.encode('M6\r\n'))
-		read = b''
-		while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
-			read = ser.readline()
-        print('Channel 1 OFF')
+        read = b''
+        while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
+            read = ser.readline()
+        print('Channel 2 OFF')
 
 def ch3on(ser):
         ser.write(str.encode('M7\r\n'))
-		read = b''
-		while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
-			read = ser.readline()
-        print('Channel 1 ON')
+        read = b''
+        while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
+            read = ser.readline()
+        print('Channel 3 ON')
 
 def ch3off(ser):
         ser.write(str.encode('M8\r\n'))
-		read = b''
-		while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
-			read = ser.readline()
-        print('Channel 1 OFF')
+        read = b''
+        while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
+            read = ser.readline()
+        print('Channel 3 OFF')
