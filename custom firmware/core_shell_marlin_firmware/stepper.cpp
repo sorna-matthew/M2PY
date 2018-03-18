@@ -1028,8 +1028,8 @@ void st_init()
 void st_synchronize()
 {
     while( blocks_queued()) {
-    manage_heater();
-    manage_inactivity();
+    // manage_heater();
+    // manage_inactivity();
     // lcd_update(); //commented out by Josh, 8/20/2015
   }
 }
