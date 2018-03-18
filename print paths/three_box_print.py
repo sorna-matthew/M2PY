@@ -6,7 +6,7 @@ Created on Wed Mar 14 08:49:27 2018
 """
 
 import m2py as mp
-mg = mp.mopen('COM6',115200)
+mg = mp.mopen('COM7',115200)
 mp.alloff(mg)
 mp.coord(mg, coord = 'rel')
 mp.speed(mg, speed = 30)
