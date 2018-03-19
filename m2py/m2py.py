@@ -87,21 +87,21 @@ def speed(ser, speed = 30):
     print('Changing movement speed to {} mm/s'.format(speed))
     
 # G2/G3
-def arc(ser, x = 0, y = 0, i = 0, j = 0, direction = 'ccw'):
+def arc(ser, x = 0, y = 0, z = 0, i = 0, j = 0, direction = 'ccw'):
     if direction == 'ccw':
-        ser.write(str.encode('G3 X{} Y{} I{} J{}\n'.format(x, y, i, j)))
+        ser.write(str.encode('G3 X{} Y{} Z{} I{} J{}\n'.format(x, y, z, i, j)))
         read = ser.readline()
         while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
             read = ser.readline()
             time.sleep(0.05)
-        print('CCW arc to ({}, {}), center at ({}, {})'.format(x, y, i, j))
+        print('CCW arc to ({}, {}, {}), center at ({}, {})'.format(x, y, z, i, j))
     elif direction == 'cw':
-        ser.write(str.encode('G2 X{} Y{} I{} J{}\n'.format(x, y, i, j)))
+        ser.write(str.encode('G2 X{} Y{} Z{} I{} J{}\n'.format(x, y, z, i, j)))
         read = ser.readline()
         while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
             read = ser.readline()
             time.sleep(0.05)
-        print('CW arc to ({}, {}), center at ({}, {})'.format(x, y, i, j))
+        print('CW arc to ({}, {}, {}), center at ({}, {})'.format(x, y, z, i, j))
         
 # G4
 def wait(ser, seconds = 0):
@@ -224,3 +224,15 @@ def ch3off(ser):
             read = ser.readline()
             time.sleep(0.05)
         print('Channel 3 OFF')
+
+def clip(ser, clip_height = 1, radius = 0.5):
+    alloff(ser)
+    arc(ser, z = clip_height, i = radius)
+    print('Print clipped')
+
+def change_tool(ser, dx = 0, dy = 0, change_height = 10):
+    alloff(ser)
+    move(ser, z = change_height)
+    move(ser, x = dx, y = dy)
+    move(ser, z = -change_height)
+    print('Tool change to ({}, {})'.format(dx, dy))
