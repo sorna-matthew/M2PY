@@ -554,7 +554,7 @@ void servo_init()
 }
 
 // CORE SHELL CODE
-int CH1 = 4;
+int CH1 = 14;
 int CH2 = 5;
 int CH3 = 2;
 
