@@ -10,11 +10,11 @@ import matplotlib.pyplot as plt
 import m2py as mp
 
 # Defining x values
-dx = 0.41
-dz = 0.41
+dx = 0.31
+dz = 0.43
 x = np.arange(-20, 20, dx)
 x2 = np.arange(-7, 7, dx)
-x3 = np.arange(19.5, 28, dx)
+x3 = np.arange(19.4, 26, dx)
 x4 = np.arange(-10, -4, dx)
 
 
@@ -101,46 +101,72 @@ coords4 = np.column_stack((xcoord4, ycoord4))*2
 
 #%% Begin M2PY Control
 
-mg = mp.mopen('COM7',115200)
+mg = mp.mopen('COM6',115200)
 mp.alloff(mg)
 mp.coord(mg, coord = 'rel')
-mp.speed(mg, speed = 30)
+mp.speed(mg, speed = 50)
 mp.home(mg, axes = 'X Y Z')
-mp.move(mg, x = 30, y = 140, z = -151.5)
+mp.move(mg, x = 20, y = 155, z = -170.5)
 mp.coord(mg, coord = 'abs')
 mp.wait(mg, seconds = 5)
 
-# Fish body
-mp.set_coords(mg, x = coords1[0][0] - 10, y = coords1[0][1])
-mp.ch1on(mg)
-for lines in coords1:
-    mp.move(mg, x = lines[0], y = lines[1])
-mp.ch1off(mg)
-mp.move(mg, z = dz)
+dx12 = 16.2
+dy12 = 0
 
-# Fish fin
-mp.move(mg, x = coords2[0][0] - 10, y = coords2[0][1])
-mp.move(mg, z = -dz)
-mp.ch1on(mg)
-for lines in coords2:
-    mp.move(mg, x = lines[0], y = lines[1])
-mp.ch1off(mg)
-mp.move(mg, z = dz)
+zval = 0
+mp.set_coords(mg, x = coords1[0][0] - 10, y = coords1[0][1], z = zval)
 
-# Fish tail
-mp.move(mg, x = coords3[0][0], y = coords3[0][1])
-mp.move(mg, z = -dz)
-mp.ch1on(mg)
-for lines in coords3:
-    mp.move(mg, x = lines[0], y = lines[1])
-mp.ch1off(mg)
-mp.move(mg, z = dz)
+for layers in range(3):
+    # Fish body
+    mp.move(mg, x = coords1[0][0], y = coords1[0][1], z = zval)
+    mp.ch2on(mg)
+    for lines in coords1:
+        mp.move(mg, x = lines[0], y = lines[1], z = zval)
+    mp.ch2off(mg)
+    
+    mp.coord(mg, coord = 'rel')
+    mp.change_tool(mg, dx = dx12, dy = dy12)
+    mp.coord(mg, coord = 'abs')
+    mp.set_coords(mg, x = lines[0], y = lines[1], z = zval)
+    
+    # Fish fin
+    zval = zval + dz
+    mp.move(mg, x = coords2[0][0], y = coords2[0][1], z = zval)
+    zval = zval - dz
+    mp.move(mg, x = coords2[0][0], y = coords2[0][1], z = zval)
+    mp.ch1on(mg)
+    for lines in coords2:
+        mp.move(mg, x = lines[0], y = lines[1], z = zval)
+    mp.ch1off(mg)
+    
+    # Fish tail
+    zval = zval + dz
+    mp.move(mg, x = coords3[0][0], y = coords3[0][1], z = zval)
+    zval = zval - dz
+    mp.move(mg, x = coords3[0][0], y = coords3[0][1], z = zval)
+    mp.ch1on(mg)
+    for lines in coords3:
+        mp.move(mg, x = lines[0], y = lines[1], z = zval)
+    mp.ch1off(mg)
+    
+    zval = zval + dz
+    
+    if layers < 3 - 1:
+        mp.coord(mg, coord = 'rel')
+        mp.change_tool(mg, dx = -dx12, dy = -dy12)
+        mp.coord(mg, coord = 'abs')
+        mp.set_coords(mg, x = lines[0], y = lines[1], z = zval)
 
 # Fish eye
-mp.move(mg, x = coords4[0][0], y = coords4[0][1])
+zval = zval + dz
+mp.move(mg, x = coords4[0][0], y = coords4[0][1], z = zval)
+zval = zval - dz
+mp.move(mg, x = coords4[0][0], y = coords4[0][1], z = zval)
 mp.ch1on(mg)
 for lines in coords4:
-    mp.move(mg, x = lines[0], y = lines[1])
-    
+    mp.move(mg, x = lines[0], y = lines[1], z = zval)
+
+
+
 mp.alloff(mg)
 mp.mclose(mg)

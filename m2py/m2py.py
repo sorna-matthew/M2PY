@@ -69,14 +69,22 @@ def fileread(fid, com, baud):
 
 # GCode wrappers
 
-# G0/G1        
+# G0/G1
+global move_count
+move_count = 0
+        
 def move(ser, x = 0, y = 0, z = 0):
     ser.write(str.encode('G1 X{} Y{} Z{}\n'.format(x, y, z)))
     read = ser.readline()
+    global move_count
+    move_count = move_count + 1;
     while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
         read = ser.readline()
         time.sleep(0.05)
     print('Move to ({}, {}, {})'.format(x, y, z))
+    if move_count > 20:
+	    ser.write(str.encode('M400\n')) # Added buffer pacing command to let in chunks of code in groups of 20 lines at a time
+	    move_count = 0;
 
 def speed(ser, speed = 30):
     ser.write(str.encode('G1 F{}\n'.format(speed*60)))
