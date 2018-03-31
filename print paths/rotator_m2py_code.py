@@ -8,13 +8,13 @@ import numpy as np
 import m2py as mp
 import matplotlib.pyplot as plt
 
-#mg = mp.mopen('COM4',115200)
+mg = mp.mopen('COM6',115200)
 
 # Key geometric parameters (mm)
 L = 10
-ratio = 1.0
+ratio = 1
 R = ratio*L
-numLayers = 5 # Actual number of layers will be twice this!
+numLayers = 10 # Actual number of layers will be twice this!
 
 # Supporting geometric parameters (mm)
 b = 3       # "Buffer" to allow for R > L case
@@ -63,13 +63,13 @@ printPath = np.array([
         [0, wdiff, 0, 0],
         [-w, 0, 0, 1],   
         [0, -R, 0, -1],              #2
-        [-wdiff, 0, 0],
+        [-wdiff, 0, 0, 0],
         [0, -w, 0, 1],   
         [R, 0, 0, -1],               #3
         [0, -wdiff, 0, 0],
         [w, 0, 0, 1],  
         [0, R, 0, -1],               #4
-        [wdiff, 0, 0],
+        [wdiff, 0, 0, 0],
         # Move to beam
         [b, R, 0, 1],
         # Beams
@@ -100,14 +100,16 @@ plt.draw()
 # Run setup command sequence
 mp.alloff(mg)
 mp.coord(mg, coord = 'rel')
-mp.speed(mg, speed = 25)    # mm/s
+mp.speed(mg, speed = 42)    # mm/s
 mp.home(mg, axes = 'X Y Z')
-p0 = [75, 75, -169]         # for use again below
+p0 = [99, 160, -176.664]         # for use again below
 mp.move(mg, x = p0[0], y = p0[1], z = p0[2]) # Moves to start position of print
+
+mp.wait(mg, seconds = 5) #Gives yourself time to adjust!
 
 # Run print sequence as defined by printPath array
 mp.ch1on(mg)  # Initial extrusion of material before making key features helps with bed adhesion, still working on this!
-mp.move(mg, x = 20)
+#mp.move(mg, x = 5)
 for i in range(numLayers):
     # Print one layer as directed in the coordinate array, move to next layer
     for c in printPath:
@@ -117,20 +119,20 @@ for i in range(numLayers):
             mp.ch1off(mg)
         elif c[3] == 1:
             mp.ch1on(mg)
-    mp.move(mg, x = 0, y = 0, z = -dz)
+    mp.move(mg, x = 0, y = 0, z = dz)
     # Print a second layer backwards (retracing steps to reach start point), move to next layer
     for j in range(len(printPath),0,-1):
         d = printPath[j-1]
         #  Execute inverse of associated channel command
-        if d == 0:
+        if d[3] == 0:
             mp.ch1on(mg)
-        elif d == 1:
+        elif d[3] == 1:
             mp.ch1off(mg)
         # Execute negative of original move command
         mp.move(mg, x = -d[0], y = -d[1], z = -d[2])
-    mp.move(mg, x = 0, y = 0, z = -dz)
+    mp.move(mg, x = 0, y = 0, z = dz)
  
 # Run end-of-print command sequence
 mp.alloff(mg)
-mp.move(mg, x = 0, y = 0, z = -10)  # Separate nozzle from print
+mp.move(mg, x = 0, y = 0, z = 30)  # Separate nozzle from print
 mp.mclose(mg)
