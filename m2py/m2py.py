@@ -36,6 +36,16 @@ def prompt(com, baud):
     time.sleep(2) # Make sure to give it enough time to initialize
     print("Enter a GCode command. To exit, type \'exit\'")
     
+    ser.write(str.encode('M17\n'))
+    
+    x = 0
+    y = 0
+    z = 0
+    
+    xval = 0
+    yval = 0
+    zval = 0
+    
     while escape == 0:
         cmd = input('>> ')
         if cmd == 'exit':
@@ -44,6 +54,28 @@ def prompt(com, baud):
             escape = 1;
         else:
             ser.write(str.encode('{}\n'.format(cmd)))
+            
+            if cmd =='G28':
+                xval = 0
+                yval = 0
+                zval = 0
+            
+            cmd_split = cmd.split(' ')
+            
+            for a in cmd_split:
+                xchar = a.split('X')
+                ychar = a.split('Y')
+                zchar = a.split('Z')
+                if xchar[0] == '' and len(xchar) > 1 and xchar[1] != '':
+                    xval = float(xchar[1])
+                    x = x + xval
+                if ychar[0] == '' and len(ychar) > 1 and ychar[1] != '':
+                    yval = float(ychar[1])
+                    y = y + yval
+                if zchar[0] == '' and len(zchar) > 1 and zchar[1] != '':
+                    zval = float(zchar[1])
+                    z = z + zval
+            print('Currently at ({}, {}, {})'.format(x, y, z))
 
 def fileread(fid, com, baud):
     """
@@ -82,9 +114,13 @@ def move(ser, x = 0, y = 0, z = 0):
         read = ser.readline()
         time.sleep(0.05)
     print('Move to ({}, {}, {})'.format(x, y, z))
-    if move_count > 20:
-	    ser.write(str.encode('M400\n')) # Added buffer pacing command to let in chunks of code in groups of 20 lines at a time
-	    move_count = 0;
+    if move_count > 25:
+        ser.write(str.encode('M400\n')) # Added buffer pacing command to let in chunks of code in groups of 20 lines at a time
+        read = ser.readline()
+        while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
+            read = ser.readline()
+            time.sleep(0.05)
+        move_count = 0;
 
 def speed(ser, speed = 30):
     ser.write(str.encode('G1 F{}\n'.format(speed*60)))
@@ -154,99 +190,109 @@ def set_coords(ser, x = 0, y = 0, z = 0):
     while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
         read = ser.readline()
         time.sleep(0.05)
-    print('Changed current position to ({}, {}, {})'.format(x, y, z))		
+    print('Changed current position to ({}, {}, {})'.format(x, y, z))        
 
 # CORE SHELL SPECIFIC FUNCTIONS
 
 def allon(ser):
-	ser.write(str.encode('M3\n'))
-	read = ser.readline()
-	while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
-		read = ser.readline()
-		time.sleep(0.05)
-	ser.write(str.encode('M5\n'))
-	read = ser.readline()
-	while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
-		read = ser.readline()
-		time.sleep(0.05)
-	ser.write(str.encode('M7\n'))
-	read = ser.readline()
-	while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
-		read = ser.readline()
-		time.sleep(0.05)
-	print('All Channels ON')
+    ser.write(str.encode('M3\n'))
+    read = ser.readline()
+    while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
+        read = ser.readline()
+        time.sleep(0.05)
+    ser.write(str.encode('M5\n'))
+    read = ser.readline()
+    while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
+        read = ser.readline()
+        time.sleep(0.05)
+    ser.write(str.encode('M7\n'))
+    read = ser.readline()
+    while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
+        read = ser.readline()
+        time.sleep(0.05)
+    print('All Channels ON')
 
 def alloff(ser):
-	ser.write(str.encode('M4\n'))
-	read = ser.readline()
-	while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
-		read = ser.readline()
-		time.sleep(0.05)
-	ser.write(str.encode('M6\n'))
-	read = ser.readline()
-	while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
-		read = ser.readline()
-		time.sleep(0.05)
-	ser.write(str.encode('M8\n'))
-	read = ser.readline()
-	while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
-		read = ser.readline()
-		time.sleep(0.05)
-	print('All Channels OFF') 
+    ser.write(str.encode('M4\n'))
+    read = ser.readline()
+    while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
+        read = ser.readline()
+        time.sleep(0.05)
+    ser.write(str.encode('M6\n'))
+    read = ser.readline()
+    while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
+        read = ser.readline()
+        time.sleep(0.05)
+    ser.write(str.encode('M8\n'))
+    read = ser.readline()
+    while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
+        read = ser.readline()
+        time.sleep(0.05)
+    print('All Channels OFF') 
 
-# M3	
+# M3    
 def ch1on(ser):
-	ser.write(str.encode('M3\n'))
-	read = ser.readline()
-	while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
-		read = ser.readline()
-		time.sleep(0.05)
-	print('Channel 1 ON')
+    ser.write(str.encode('M3\n'))
+    read = ser.readline()
+    while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
+        read = ser.readline()
+        time.sleep(0.05)
+    print('Channel 1 ON')
 
 # M4
 def ch1off(ser):
-	ser.write(str.encode('M4\n'))
-	read = ser.readline()
-	while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
-		read = ser.readline()
-		time.sleep(0.05)
-	print('Channel 1 OFF')
+    global move_count
+    move_count = 0
+    ser.write(str.encode('M4\n'))
+    read = ser.readline()
+    while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
+        read = ser.readline()
+        time.sleep(0.05)
+    print('Channel 1 OFF')
 
-# M5	
+# M5    
 def ch2on(ser):
-	ser.write(str.encode('M5\n'))
-	read = ser.readline()
-	while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
-		read = ser.readline()
-		time.sleep(0.05)
-	print('Channel 2 ON')
+    global move_count
+    move_count = 0
+    ser.write(str.encode('M5\n'))
+    read = ser.readline()
+    while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
+        read = ser.readline()
+        time.sleep(0.05)
+    print('Channel 2 ON')
 
 # M6
 def ch2off(ser):
-	ser.write(str.encode('M6\n'))
-	read = ser.readline()
-	while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
-		read = ser.readline()
-		time.sleep(0.05)
-	print('Channel 2 OFF')
+    global move_count
+    move_count = 0
+    ser.write(str.encode('M6\n'))
+    read = ser.readline()
+    while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
+        read = ser.readline()
+        time.sleep(0.05)
+    print('Channel 2 OFF')
 
 # M7
 def ch3on(ser):
-	ser.write(str.encode('M7\n'))
-	read = ser.readline()
-	while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
-		read = ser.readline()
-		time.sleep(0.05)
-	print('Channel 3 ON')
+    global move_count
+    move_count = 0
+    ser.write(str.encode('M7\n'))
+    read = ser.readline()
+    while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
+        read = ser.readline()
+        time.sleep(0.05)
+    print('Channel 3 ON')
 
 # M8
 def ch3off(ser):
-	ser.write(str.encode('M8\n'))
-	read = ser.readline()
-	while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
-		read = ser.readline()
-		time.sleep(0.05)
-	print('Channel 3 OFF')
+    global move_count
+    move_count = 0
+    ser.write(str.encode('M8\n'))
+    read = ser.readline()
+    while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
+        read = ser.readline()
+        time.sleep(0.05)
+    print('Channel 3 OFF')
 
 def clip(ser, clip_height = 1, radius = 0.5):
     alloff(ser)

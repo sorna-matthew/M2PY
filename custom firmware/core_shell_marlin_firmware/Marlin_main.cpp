@@ -1958,32 +1958,35 @@ void process_commands()
       break;
       
       // CORE SHELL CODE
-    case 3:
+    case 3: // M3 CH1 ON
         st_synchronize();
         digitalWrite(CH1, LOW);
+        delay(50);
       break;
       
-    case 4:
+    case 4: // M4 CH1 OFF
         st_synchronize();
         digitalWrite(CH1, HIGH);
       break;
       
-    case 5:
+    case 5: // M5 CH2 ON
         st_synchronize();
         digitalWrite(CH2, LOW);
+        delay(50);
       break;
       
-    case 6:
+    case 6: // M6 CH2 OFF
         st_synchronize();
         digitalWrite(CH2, HIGH);
       break;
 
-    case 7:
+    case 7: // M7 CH3 ON
         st_synchronize();
         digitalWrite(CH3, LOW);
+        delay(50);
       break;
       
-    case 8:
+    case 8: // M8 CH3 OFF
         st_synchronize();
         digitalWrite(CH3, HIGH);
       break;

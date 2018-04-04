@@ -10,8 +10,8 @@ import matplotlib.pyplot as plt
 import m2py as mp
 
 # Defining x values
-dx = 0.31
-dz = 0.43
+dx = 0.34
+dz = 0.46
 x = np.arange(-20, 20, dx)
 x2 = np.arange(-7, 7, dx)
 x3 = np.arange(19.4, 26, dx)
@@ -104,13 +104,13 @@ coords4 = np.column_stack((xcoord4, ycoord4))*2
 mg = mp.mopen('COM6',115200)
 mp.alloff(mg)
 mp.coord(mg, coord = 'rel')
-mp.speed(mg, speed = 50)
+mp.speed(mg, speed = 36)
 mp.home(mg, axes = 'X Y Z')
-mp.move(mg, x = 20, y = 155, z = -170.5)
+mp.move(mg, x = 10, y = 160, z = -178)
 mp.coord(mg, coord = 'abs')
 mp.wait(mg, seconds = 5)
 
-dx12 = 16.2
+dx12 = 28
 dy12 = 0
 
 zval = 0
@@ -119,10 +119,10 @@ mp.set_coords(mg, x = coords1[0][0] - 10, y = coords1[0][1], z = zval)
 for layers in range(3):
     # Fish body
     mp.move(mg, x = coords1[0][0], y = coords1[0][1], z = zval)
-    mp.ch2on(mg)
+    mp.ch1on(mg)
     for lines in coords1:
         mp.move(mg, x = lines[0], y = lines[1], z = zval)
-    mp.ch2off(mg)
+    mp.ch1off(mg)
     
     mp.coord(mg, coord = 'rel')
     mp.change_tool(mg, dx = dx12, dy = dy12)
@@ -134,20 +134,20 @@ for layers in range(3):
     mp.move(mg, x = coords2[0][0], y = coords2[0][1], z = zval)
     zval = zval - dz
     mp.move(mg, x = coords2[0][0], y = coords2[0][1], z = zval)
-    mp.ch1on(mg)
+    mp.ch2on(mg)
     for lines in coords2:
         mp.move(mg, x = lines[0], y = lines[1], z = zval)
-    mp.ch1off(mg)
+    mp.ch2off(mg)
     
     # Fish tail
     zval = zval + dz
     mp.move(mg, x = coords3[0][0], y = coords3[0][1], z = zval)
     zval = zval - dz
     mp.move(mg, x = coords3[0][0], y = coords3[0][1], z = zval)
-    mp.ch1on(mg)
+    mp.ch2on(mg)
     for lines in coords3:
         mp.move(mg, x = lines[0], y = lines[1], z = zval)
-    mp.ch1off(mg)
+    mp.ch2off(mg)
     
     zval = zval + dz
     
@@ -158,13 +158,13 @@ for layers in range(3):
         mp.set_coords(mg, x = lines[0], y = lines[1], z = zval)
 
 # Fish eye
-zval = zval + dz
-mp.move(mg, x = coords4[0][0], y = coords4[0][1], z = zval)
-zval = zval - dz
-mp.move(mg, x = coords4[0][0], y = coords4[0][1], z = zval)
-mp.ch1on(mg)
-for lines in coords4:
-    mp.move(mg, x = lines[0], y = lines[1], z = zval)
+for eye_layers in range(2):
+    zval = zval + dz
+    mp.move(mg, x = coords4[0][0], y = coords4[0][1], z = zval)
+    mp.ch2on(mg)
+    for lines in coords4:
+        mp.move(mg, x = lines[0], y = lines[1], z = zval)
+    mp.ch2off(mg)
 
 
 
