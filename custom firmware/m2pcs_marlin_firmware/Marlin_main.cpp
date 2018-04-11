@@ -553,7 +553,7 @@ void servo_init()
   #endif
 }
 
-// CORE SHELL CODE
+// M2PCS SHELL CODE
 int CH1 = 14;
 int CH2 = 5;
 int CH3 = 2;
@@ -625,7 +625,7 @@ void setup()
 #endif // Z_PROBE_SLED
   setup_homepin();
  
-  // CORE SHELL CODE
+  // M2PCS CODE
   pinMode(CH1, OUTPUT);
   pinMode(CH2, OUTPUT);
   pinMode(CH3, OUTPUT);
@@ -1957,7 +1957,7 @@ void process_commands()
         enable_e2();
       break;
       
-      // CORE SHELL CODE
+      // M2PCS CODE
     case 3: // M3 CH1 ON
         st_synchronize();
         digitalWrite(CH1, LOW);
