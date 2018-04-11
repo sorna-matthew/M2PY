@@ -94,7 +94,7 @@ mp.mclose(makergear)
 ```
 
 ---
-#### Core-shell specific functions
+#### Makergear M2 Pressure Control System (M2PCS) specific functions
 ##### M3 / M4
 **m2py.ch1on**(*ser*): Turns pneumatic Channel 1 ON \
 **m2py.ch1off**(*ser*): Turns pneumatic Channel 1 OFF
