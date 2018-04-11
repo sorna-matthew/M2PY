@@ -553,7 +553,7 @@ void servo_init()
   #endif
 }
 
-// M2PCS SHELL CODE
+// [M2PCS] CHANNEL/FUNCTION PIN DEFINITIONS
 int CH1 = 14;
 int CH2 = 5;
 int CH3 = 2;
@@ -625,14 +625,14 @@ void setup()
 #endif // Z_PROBE_SLED
   setup_homepin();
  
-  // M2PCS CODE
+  // [M2PCS] PIN DIRECTION SETTING AND INTITIAL STATE CONFIGURATION
   pinMode(CH1, OUTPUT);
   pinMode(CH2, OUTPUT);
   pinMode(CH3, OUTPUT);
   
-  digitalWrite(CH1, HIGH); // RELAY IN OFF POSITION
-  digitalWrite(CH2, HIGH); // RELAY IN OFF POSITION
-  digitalWrite(CH3, HIGH); // RELAY IN OFF POSITION
+  digitalWrite(CH1, HIGH); // RELAY INITIALLY IN OFF POSITION
+  digitalWrite(CH2, HIGH); // RELAY INITIALLY IN OFF POSITION
+  digitalWrite(CH3, HIGH); // RELAY INITIALLY IN OFF POSITION
 }
 
 
@@ -1957,7 +1957,7 @@ void process_commands()
         enable_e2();
       break;
       
-      // M2PCS CODE
+      // [M2PCS] CUSTOM GCODE DEFINTIONS (check to make sure that any additional M values you want to add aren't already defined. st_synchronize() requires printer to be caught up with commands before following action. Without it, printer will act on command as soon as it receives it, rather than waiting for its place in the command queue)
     case 3: // M3 CH1 ON
         st_synchronize();
         digitalWrite(CH1, LOW);
