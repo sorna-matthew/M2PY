@@ -8,8 +8,6 @@ import numpy as np
 import m2py as mp
 import matplotlib.pyplot as plt
 
-# mg = mp.mopen('COM6',115200)
-
 # Print parameters
 fs = 42             # Frame speed, mm/s
 bs = 35             # Beam speed, mm/s
@@ -152,14 +150,14 @@ print("Fixture-fitting size: %.2fmm" % (fixture))
 
 
 #%%
-
+mg = mp.mopen('COM6',115200)
 # Run setup command sequence
 mp.alloff(mg)
 mp.coord(mg, coord = 'rel')
 curSpeed = fs
 mp.speed(mg, speed = curSpeed)    # mm/s
 mp.home(mg, axes = 'X Y Z')
-p0 = [99, 160, -176.664]         # for use again below
+p0 = [80, 180, -156.45]         # for use again below
 mp.move(mg, x = p0[0], y = p0[1], z = p0[2]) # Moves to start position of print
 
 mp.wait(mg, seconds = 5) #Gives yourself time to adjust!

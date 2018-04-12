@@ -1957,7 +1957,10 @@ void process_commands()
         enable_e2();
       break;
       
-      // [M2PCS] CUSTOM GCODE DEFINTIONS (check to make sure that any additional M values you want to add aren't already defined. st_synchronize() requires printer to be caught up with commands before following action. Without it, printer will act on command as soon as it receives it, rather than waiting for its place in the command queue)
+      // [M2PCS] CUSTOM GCODE DEFINTIONS 
+      //(check to make sure that any additional M values you want to add aren't already defined. 
+      // st_synchronize() requires printer to be caught up with commands before following action. 
+      // Without it, printer will act on command as soon as it receives it, rather than waiting for its place in the command queue)
     case 3: // M3 CH1 ON
         st_synchronize();
         digitalWrite(CH1, LOW);
