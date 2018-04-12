@@ -9,13 +9,13 @@ import m2py as mp
 import matplotlib.pyplot as plt
 
 # Print parameters
-fs = 42             # Frame speed, mm/s
-bs = 35             # Beam speed, mm/s
-nozzle = 0.410      # Nozzle inner diameter, mm
+fs = 25             # Frame speed, mm/s
+bs = 15             # Beam speed, mm/s
+nozzle = 0.250      # Nozzle inner diameter, mm
 # -- (dependent/won't often change)
-dz = 0.52*nozzle    # Layer height based on nozzle diameter, mm
+dz = 0.55*nozzle    # Layer height based on nozzle diameter, mm
 exw = 1.00          # Approximate frame extrusion width, mm - this is overlarge to account for rounding/accumulation at corners.
-numLayers = 10      # Actual number of layers will be twice this!
+numLayers = 15      # Actual number of layers will be twice this!
 
 # Key geometric parameters, mm
 L = 12
