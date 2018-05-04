@@ -98,21 +98,73 @@ mp.mclose(makergear)
 ##### M3 / M4
 **m2py.ch1on**(*ser*): Turns pneumatic Channel 1 ON \
 **m2py.ch1off**(*ser*): Turns pneumatic Channel 1 OFF
+```python
+import m2py as mp
+makergear = mp.mopen('COM5',115200)
+mp.ch1on(makergear)
+mp.move(makergear, x = 10)
+mp.ch1off(makergear)
+mp.mclose(makergear)
+```
 
 ##### M5 / M6
 **m2py.ch2on**(*ser*): Turns pneumatic Channel 2 ON \
 **m2py.ch2off**(*ser*): Turns pneumatic Channel 2 OFF
+```python
+import m2py as mp
+makergear = mp.mopen('COM5',115200)
+mp.ch2on(makergear)
+mp.move(makergear, x = 10)
+mp.ch2off(makergear)
+mp.mclose(makergear)
+```
 
 ##### M7 / M8
 **m2py.ch3on**(*ser*): Turns pneumatic Channel 3 ON \
 **m2py.ch3off**(*ser*): Turns pneumatic Channel 3 OFF
+```python
+import m2py as mp
+makergear = mp.mopen('COM5',115200)
+mp.ch3on(makergear)
+mp.move(makergear, x = 10)
+mp.ch3off(makergear)
+mp.mclose(makergear)
+```
+
+**m2py.clip**(*ser*, *clip_height=1*, *radius=0.5*): This subroutine automatically turns off all channels, and performs a quick arc/z-translation to shear excess material away from nozzle before continuing with print path.
+ ```python
+import m2py as mp
+makergear = mp.mopen('COM5',115200)
+mp.ch1on(makergear)
+mp.move(makergear, x = 10)
+mp.clip(makergear, clip_height = 2, radius = 0.1)
+mp.mclose(makergear)
+```
+
+**m2py.change_tool**(*ser*, *dx=0*, *dy=0*, *change_height=10*): This subroutine automatically turns off all channels, and performs a predetermined z translation of z = change_height, and then moves (x,y) = (dx, dy) to allow for change between multiple nozzles. It also automatically lowers back to the z height it was at previously, continuing printing after switching active tools
+ ```python
+import m2py as mp
+makergear = mp.mopen('COM5',115200)
+mp.ch1on(makergear)
+mp.move(makergear, x = 10)
+mp.change_tool(makergear, dx = 20, dy = 5)
+mp.ch2on(makergear)
+mp.move(makergear, x = 10)
+mp.mclose(makergear)
+```
 
 ##### Simultaneous functions
+---
 **m2py.allon**(*ser*): Turns all three pneumatic channels ON \
 **m2py.alloff**(*ser*): Turns all three pneumatic channels OFF
- 
-
-
+ ```python
+import m2py as mp
+makergear = mp.mopen('COM5',115200)
+mp.allon(makergear)
+mp.move(makergear, x = 10)
+mp.alloff(makergear)
+mp.mclose(makergear)
+```
 #### Example code of basic commands:
  
 ```python
