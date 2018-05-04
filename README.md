@@ -41,7 +41,7 @@ mp.fread('C:/Users/Matthew/Documents/m2-python/trunk/print paths/test_path.txt',
 
 ```python
 import m2py as mp
-makgergear = mp.mopen('COM3',115200)
+makergear = mp.mopen('COM3',115200)
 mp.move(makergear, x = 10, y = -5) # x, y, z arguments are all keyword arguments, and default to 0 when not called
 mp.mclose(makergear)
 ```
@@ -49,7 +49,7 @@ mp.mclose(makergear)
 
 ```python
 import m2py as mp
-makgergear = mp.mopen('COM3',115200)
+makergear = mp.mopen('COM3',115200)
 mp.speed(makergear, 40) # sets the movement speed of the printer to 40 mm/s
 mp.mclose(makergear)
 ```
@@ -58,7 +58,7 @@ mp.mclose(makergear)
 
 ```python
 import m2py as mp
-makgergear = mp.mopen('COM3',115200)
+makergear = mp.mopen('COM3',115200)
 mp.arc(makergear, x = 10, y = -5, i = 2, j = 3, direction = 'ccw') 
 mp.mclose(makergear)
 ```
@@ -67,7 +67,7 @@ mp.mclose(makergear)
 
 ```python
 import m2py as mp
-makgergear = mp.mopen('COM3',115200)
+makergear = mp.mopen('COM3',115200)
 mp.wait(makergear, 5) # causes the printer to wait for 5 seconds 
 mp.mclose(makergear)
 ```
@@ -76,7 +76,7 @@ mp.mclose(makergear)
 
 ```python
 import m2py as mp
-makgergear = mp.mopen('COM3',115200)
+makergear = mp.mopen('COM3',115200)
 mp.home(makergear, axes = 'X Y Z') # homes all three axes
 mp.home(makergear) # homes all three axes
 mp.home(makergear, axes = 'X Z') # homes only the specified axes
@@ -87,7 +87,7 @@ mp.mclose(makergear)
 
 ```python
 import m2py as mp
-makgergear = mp.mopen('COM3',115200)
+makergear = mp.mopen('COM3',115200)
 mp.coord(makergear, coord = 'abs') # sets coordinate system to absolute
 mp.coord(makergear, coord = 'rel') # sets coordinate system to relative
 mp.mclose(makergear)
@@ -153,7 +153,7 @@ mp.move(makergear, x = 10)
 mp.mclose(makergear)
 ```
 
-##### Simultaneous functions
+#### Simultaneous functions
 ---
 **m2py.allon**(*ser*): Turns all three pneumatic channels ON \
 **m2py.alloff**(*ser*): Turns all three pneumatic channels OFF
