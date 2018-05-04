@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 
 # Print parameters
 fs = 25             # Frame speed, mm/s
-bs = 15             # Beam speed, mm/s
+bs = 25             # Beam speed, mm/s
 nozzle = 0.250      # Nozzle inner diameter, mm
 # -- (dependent/won't often change)
 dz = 0.55*nozzle    # Layer height based on nozzle diameter, mm
@@ -29,7 +29,7 @@ s = 3           # Outer support ring thickness
 w = 6           # Width of rotator blades
 # -- (dependent)
 p = 4.78 + exw  # Pin width
-f = 3.18 + exw  # Screw hole width for fixture
+f = 3.5 + exw  # Screw hole width for fixture
 
 # Internal dimensions, mm (dependent)
 dimsum = R + L          # longest inner edge dimension on frame
@@ -39,6 +39,7 @@ bdiff = b + dimdiff     # Inner edge of fram along length of beam
 wdiff = R - w           # Space left between rotator blade and beam to allow for buckling
 beam = bdiff + L + w    # Total extrusion length of beam
 mindim = 2.5            # Minimum width of any epoxy-filled area
+dzup = 1.5
 
 # Define print path array for one layer. Entries are in the form (x,y,z,channel) where the coordinates are relative and the channel command (-1,0,1 correspond to none,off,on respectively) is to be executed after the move command.
 # Note that this automatically inserts mp.move(mg, 0,0,0) commands in between consecutive channel commands, unless later down in the execution you overwrite this.
@@ -50,31 +51,41 @@ printPath = np.array([
         [-edge, 0, 0, -1],
         [0, edge, 0, -1],
         [edge, 0, 0, 0],
+        [0, 0, dzup, -1],
         # Move to screw holes
-        [-(s+b+dimdiff-mindim), -(s+b-mindim), 0, 1],
+        [-(s+b+dimdiff-mindim), -(s+b-mindim), 0, -1],
+        [0, 0, -dzup, 1],
         # Screwholes (square)
         [f, 0, 0, -1],
         [0, f, 0, -1],
         [-f, 0, 0, -1],
         [0, -f, 0, 0],
-        [-(dimsum + 2*mindim), -dimdiff, 0, 1],       
+        [0, 0, dzup, -1],
+        [-(dimsum + 2*mindim), -dimdiff, 0, -1], 
+        [0, 0, -dzup, 1],
         [0, f, 0, -1],
         [-f, 0, 0, -1],
         [0, -f, 0, -1],
         [f, 0, 0, 0],
-        [dimdiff, -(dimsum + 2*mindim), 0, 1],    
+        [0, 0, dzup, -1],
+        [dimdiff, -(dimsum + 2*mindim), 0, -1], 
+        [0, 0, -dzup, 1],
         [-f, 0, 0, -1],
         [0, -f, 0, -1],
         [f, 0, 0, -1],
         [0, f, 0, 0],
-        [(dimsum + 2*mindim), dimdiff, 0, 1],       
+        [0, 0, dzup, -1],
+        [(dimsum + 2*mindim), dimdiff, 0, -1],
+        [0, 0, -dzup, 1],
         [0, -f, 0, -1],
         [f, 0, 0, -1],
         [0, f, 0, -1],
         [-f, 0, 0, 0],
+        [0, 0, dzup, -1],
         # Move to inner edge
         [0, mindim + dimsum, 0, -1],
-        [-(mindim + dimdiff), 0, 0, 1],
+        [-(mindim + dimdiff), 0, 0, -1],
+        [0, 0, -dzup, 1],
         # Inner edges of support
         [0, b, 0, -1],
         [-dimsum, 0, 0, 0],
@@ -157,7 +168,7 @@ mp.coord(mg, coord = 'rel')
 curSpeed = fs
 mp.speed(mg, speed = curSpeed)    # mm/s
 mp.home(mg, axes = 'X Y Z')
-p0 = [80, 180, -156.45]         # for use again below
+p0 = [175-55-55, 230-55+10, -157.85]         # for use again below
 mp.move(mg, x = p0[0], y = p0[1], z = p0[2]) # Moves to start position of print
 
 mp.wait(mg, seconds = 5) #Gives yourself time to adjust!
@@ -165,6 +176,9 @@ mp.wait(mg, seconds = 5) #Gives yourself time to adjust!
 # Run print sequence as defined by printPath array
 mp.ch1on(mg)  # Initial extrusion of material before making key features helps with bed adhesion, still working on this!
 #mp.move(mg, x = 5)
+
+mp.move(mg, y = -10)
+
 for i in range(numLayers):
     # Print one layer as directed in the coordinate array, move to next layer
     for c in printPath:

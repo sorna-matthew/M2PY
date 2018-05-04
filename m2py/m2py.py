@@ -106,25 +106,25 @@ def fileread(fid, com, baud):
 # GCode wrappers
 
 # G0/G1
-global move_count
-move_count = 0
+#global move_count
+#move_count = 0
         
 def move(ser, x = 0, y = 0, z = 0):
     ser.write(str.encode('G1 X{} Y{} Z{}\n'.format(x, y, z)))
     read = ser.readline()
-    global move_count
-    move_count = move_count + 1;
+#    global move_count
+#    move_count = move_count + 1;
     while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
         read = ser.readline()
         time.sleep(0.06)
     print('Move to ({}, {}, {})'.format(x, y, z))
-    if move_count > 20:
-        ser.write(str.encode('M400\n')) # Added buffer pacing command to let in chunks of code in groups of 20 lines at a time
+#    if move_count > 20:
+#        ser.write(str.encode('M400\n')) # Added buffer pacing command to let in chunks of code in groups of 20 lines at a time
+#        read = ser.readline()
+    while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
         read = ser.readline()
-        while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
-            read = ser.readline()
-            time.sleep(0.06)
-        move_count = 0;
+        time.sleep(0.06)
+#        move_count = 0;
 
 def speed(ser, speed = 30):
     ser.write(str.encode('G1 F{}\n'.format(speed*60)))
@@ -199,8 +199,8 @@ def set_coords(ser, x = 0, y = 0, z = 0):
 # CORE SHELL SPECIFIC FUNCTIONS
 
 def allon(ser):
-    global move_count
-    move_count = 0
+#    global move_count
+#    move_count = 0
     ser.write(str.encode('M3\n'))
     read = ser.readline()
     while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
@@ -219,8 +219,8 @@ def allon(ser):
     print('All Channels ON')
 
 def alloff(ser):
-    global move_count
-    move_count = 0
+#    global move_count
+#    move_count = 0
     ser.write(str.encode('M4\n'))
     read = ser.readline()
     while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
@@ -240,8 +240,8 @@ def alloff(ser):
 
 # M3    
 def ch1on(ser):
-    global move_count
-    move_count = 0
+#    global move_count
+#    move_count = 0
     ser.write(str.encode('M3\n'))
     read = ser.readline()
     while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
@@ -251,8 +251,8 @@ def ch1on(ser):
 
 # M4
 def ch1off(ser):
-    global move_count
-    move_count = 0
+#    global move_count
+#    move_count = 0
     ser.write(str.encode('M4\n'))
     read = ser.readline()
     while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
@@ -262,8 +262,8 @@ def ch1off(ser):
 
 # M5    
 def ch2on(ser):
-    global move_count
-    move_count = 0
+#    global move_count
+#    move_count = 0
     ser.write(str.encode('M5\n'))
     read = ser.readline()
     while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
@@ -273,8 +273,8 @@ def ch2on(ser):
 
 # M6
 def ch2off(ser):
-    global move_count
-    move_count = 0
+#    global move_count
+#    move_count = 0
     ser.write(str.encode('M6\n'))
     read = ser.readline()
     while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
@@ -284,8 +284,8 @@ def ch2off(ser):
 
 # M7
 def ch3on(ser):
-    global move_count
-    move_count = 0
+#    global move_count
+#    move_count = 0
     ser.write(str.encode('M7\n'))
     read = ser.readline()
     while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
@@ -295,8 +295,8 @@ def ch3on(ser):
 
 # M8
 def ch3off(ser):
-    global move_count
-    move_count = 0
+#    global move_count
+#    move_count = 0
     ser.write(str.encode('M8\n'))
     read = ser.readline()
     while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
