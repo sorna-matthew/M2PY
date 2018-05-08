@@ -558,6 +558,8 @@ int CH1 = 14;
 int CH2 = 5;
 int CH3 = 2;
 
+int CH_ON_DELAY_TIME = 50;
+
 void setup()
 { 
   setup_killpin();
@@ -1961,10 +1963,11 @@ void process_commands()
       //(check to make sure that any additional M values you want to add aren't already defined. 
       // st_synchronize() requires printer to be caught up with commands before following action. 
       // Without it, printer will act on command as soon as it receives it, rather than waiting for its place in the command queue)
+      
     case 3: // M3 CH1 ON
         st_synchronize();
         digitalWrite(CH1, LOW);
-        delay(50);
+        delay(CH_ON_DELAY_TIME);
       break;
       
     case 4: // M4 CH1 OFF
@@ -1975,7 +1978,7 @@ void process_commands()
     case 5: // M5 CH2 ON
         st_synchronize();
         digitalWrite(CH2, LOW);
-        delay(50);
+        delay(CH_ON_DELAY_TIME);
       break;
       
     case 6: // M6 CH2 OFF
@@ -1986,12 +1989,18 @@ void process_commands()
     case 7: // M7 CH3 ON
         st_synchronize();
         digitalWrite(CH3, LOW);
-        delay(50);
+        delay(CH_ON_DELAY_TIME);
       break;
       
     case 8: // M8 CH3 OFF
         st_synchronize();
         digitalWrite(CH3, HIGH);
+      break;
+      
+    case 50: // SET CHANNEL ON DELAY TIME IN MS
+        if (code_seen('S')) {
+          CH_ON_DELAY_TIME = code_value();
+        }
       break;
 
 #ifdef SDSUPPORT
@@ -3534,10 +3543,6 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
     } 
     break; 
     #endif
-    
-
-
-
 
     case 500: // M500 Store settings in EEPROM
     {

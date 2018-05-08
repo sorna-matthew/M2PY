@@ -303,6 +303,14 @@ def ch3off(ser):
         read = ser.readline()
         time.sleep(0.06)
     print('Channel 3 OFF')
+    
+def delay_set(ser, delay = 50):
+    ser.write(str.encode('M50 S{}\n'.format(delay)))
+    read = ser.readline()
+    while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
+        read = ser.readline()
+        time.sleep(0.06)
+    print('Channel ON delay time changed to {} ms'.format(delay))
 
 def clip(ser, clip_height = 1, radius = 0.5):
     alloff(ser)
