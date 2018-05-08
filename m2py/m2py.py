@@ -1,9 +1,6 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Feb 19 18:59:06 2018
-
-@author: Matthew Sorna
-"""
+# M2PY -- Python library used to control the Makergear M2 Pneumatic Control System [M2PCS]
+# Developed in the Architected Materials Laboratory at the University of Pennsylvania
+# Author: Matthew Sorna [sorna@seas.upenn.edu]
 
 # Importing of necessary dependent modules
 import serial
@@ -64,15 +61,16 @@ def path_vis(fid, coord = 'abs'):
     x_coord = coord_array[:,0]
     y_coord = coord_array[:,1]
     z_coord = coord_array[:,2]
-    
-    x_coord = np.delete(x_coord, 0)
-    y_coord = np.delete(y_coord, 0)
-    z_coord = np.delete(z_coord, 0)
-    
+
     fig = plt.figure()
     ax = fig.gca(projection='3d')
-    ax.axis('equal')
-    ax.plot(x_coord, y_coord, z_coord, color = 'g', linewidth = 1.0)
+    ax.set_xlim3d(0, 203)
+    ax.set_ylim3d(0, 254)
+    ax.set_zlim3d(0, 203)
+    ax.set_xlabel('X axis')
+    ax.set_ylabel('Y axis')
+    ax.set_zlabel('Z axis')
+    ax.plot(x_coord, y_coord, z_coord, color = 'g', linewidth = 1.0, label = 'Print path visualization')
     ax.legend()
     plt.show()           
         
