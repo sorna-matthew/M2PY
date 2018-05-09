@@ -161,15 +161,15 @@ print("Fixture-fitting size: %.2fmm" % (fixture))
 
 
 #%%
-mg = mp.mopen('COM6',115200)
+mg = mp.mopen('COM7',115200, printout = 1)
 # Run setup command sequence
 mp.alloff(mg)
 mp.coord(mg, coord = 'rel')
 curSpeed = fs
 mp.speed(mg, speed = curSpeed)    # mm/s
 mp.home(mg, axes = 'X Y Z')
-p0 = [175-55-55, 230-55+10, -157.85]         # for use again below
-mp.move(mg, x = p0[0], y = p0[1], z = p0[2]) # Moves to start position of print
+p0 = [175-55-55, 230-55+10, -100]         # for use again below
+mp.move(mg, x = p0[0], y = p0[1], z = p0[2], track = 0) # Moves to start position of print
 
 mp.wait(mg, seconds = 5) #Gives yourself time to adjust!
 
