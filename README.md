@@ -13,7 +13,7 @@ Additonally, these serial commands have been combined with GCode wrappers into t
 ---
 ---
 #### Serial communication commands 
-**m2py.mopen**(*com*, *baud*, *printout=1*, *fid=''*): when the argument 'printout' is set to 1 [default], this function opens the specified com port, and returns a serial object, `ser`, which must be used in all other m2py function calls. However, if this argument is set to 0, the coordinate movement commands of the following print path will just be saved to a file of the directory in the argument (fid).
+**m2py.mopen**(*com*, *baud*, *printout=1*, *fid=''*): returns the necessary handle (serial object if printout = 1, or temporary file if printout = 0). If printout = 1, this function will instantiate a serial object used by all subsequent function calls to send serial commands to the specified printer. If printout = 0, this function will store all revelant coordinate changes (move and arc commands) to a temporary file that can then be used to visualize print paths before sending commands to the printer. By default, printout = 1. 
 ```python
 import m2py as mp
 mg = mp.mopen('COM3',115200)
@@ -21,17 +21,17 @@ mg = mp.mopen('COM3',115200)
 
 ```python
 import m2py as mp
-mg = mp.mopen('COM3',115200, printout = 0, fid = 'C:/Users/Matthew/Documents/test.txt')
+mg = mp.mopen('COM3',115200, printout = 0)
 ```
 
-**m2py.mclose**(*ser*): closes the specified serial object.
+**m2py.mclose**(*ser*): closes the specified handle. If in **mopen** printout = 1, this function will close the necessary serial object. If prinout = 0, this function will close the specified temporary file and plot a visualization of all relevant movement commands. Visualization function will use whatever coordinate system you explicity designate using **coord**. If **coord** isn't explicitly called, the coordinate system used by the visualization tool will be *absolute*.
 
 ```python
 import m2py as mp
 mg = mp.mopen('COM3', 115200)
 mp.mclose(mg)
 ```
-**m2py.path_vis**(*fid=''*, *coord='abs'*): takes the (x, y, z) coordinates generated from mp.mopen(printout = 0), and plots them into a 3D line graph to check a print path before actually sending commands to the Makergear. Coordinate system (absolute or relative) needs to be specified.
+**m2py.path_vis**(*fid=''*, *coord='abs'*): takes the (x, y, z) coordinates generated from mp.mopen(printout = 0), and plots them into a 3D line graph to check a print path before actually sending commands to the Makergear. Visualization function will use whatever coordinate system you explicity designate using **coord**. If **coord** isn't explicitly called, the coordinate system used by the visualization tool will be *absolute*. When using **path_vis**, the file directory of the path coordinates needs to be explicity set, unlike when it is implictly called inside **mclose**.
 
 ```python
 import m2py as mp
