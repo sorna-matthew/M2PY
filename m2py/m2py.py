@@ -23,7 +23,7 @@ def mopen(com, baud, printout = 1, fid = os.path.abspath('path_vis_temp.txt')):
         handle = serial.Serial(com, baud, timeout = 1)
         time.sleep(2) # Make sure to give it enough time to initialize
         print('Serial port connected')
-        for x in range(21): # Reads in all 21 lines of initialization text for the M2
+        for _ in range(21): # Reads in all 21 lines of initialization text for the M2
             handle.readline()
         return handle
         
@@ -101,7 +101,7 @@ def prompt(com, baud):
     """
     Allows for quick, native GCode serial communication with the M2, provided that the proper com port and baud rate are selected, and match what is found in system settings. To exit the command prompt environment, just type exit in the IPython console.
     """
-    escape = 0;
+    escape = 0
     cmd = ''
     
     #Create and define serial port parameters
@@ -122,9 +122,9 @@ def prompt(com, baud):
     while escape == 0:
         cmd = input('>> ')
         if cmd == 'exit':
-            handle.close();
+            handle.close()
             print("Serial port disconnected")
-            escape = 1;
+            escape = 1
         else:
             handle.write(str.encode('{}\n'.format(cmd)))
             
@@ -163,7 +163,7 @@ def file_read(fid, com, baud):
     time.sleep(2) # Make sure to give it enough time to initialize
     
     print('Serial port initialized')
-    for x in range(21): # Reads in all 21 lines of initalization text for the M2
+    for _ in range(21): # Reads in all 21 lines of initalization text for the M2
         handle.readline()
     print('Beginning print')
     with open(fid, "r") as gcode:
