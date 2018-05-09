@@ -13,17 +13,35 @@ Additonally, these serial commands have been combined with GCode wrappers into t
 ---
 ---
 #### Serial communication commands 
-**m2py.mopen**(*com*, *baud*, *printout=1*, *fid=''*): When the argument 'printout' is set to 1 [default], this function opens the specified com port, and returns a serial object, `ser`, which must be used in all other m2py function calls. However, if this argument is set to 0, the coordinate movement commands of the following print path will just be saved to a file of the directory in the argument (fid).
+**m2py.mopen**(*com*, *baud*, *printout=1*, *fid=''*): when the argument 'printout' is set to 1 [default], this function opens the specified com port, and returns a serial object, `ser`, which must be used in all other m2py function calls. However, if this argument is set to 0, the coordinate movement commands of the following print path will just be saved to a file of the directory in the argument (fid).
 ```python
 import m2py as mp
 mg = mp.mopen('COM3',115200)
 ```
+
+```python
+import m2py as mp
+mg = mp.mopen('COM3',115200, printout = 0, fid = 'C:/Users/Matthew/Documents/test.txt')
+```
+
 **m2py.mclose**(*ser*): closes the specified serial object.
 
 ```python
 import m2py as mp
 mg = mp.mopen('COM3', 115200)
 mp.mclose(mg)
+```
+**m2py.path_vis**(*fid=''*, *coord='abs'*): takes the (x, y, z) coordinates generated from mp.mopen(printout = 0), and plots them into a 3D line graph to check a print path before actually sending commands to the Makergear. Coordinate system (absolute or relative) needs to be specified.
+
+```python
+import m2py as mp
+mg = mp.mopen('COM3', 115200, printout = 0, fid = 'C:/Users/Matthew/Documents/test.txt')
+mp.move(x = 10)
+mp.move(y = 10)
+mp.move(x = -10)
+mp.move(y = -10)
+mp.mclose(mg)
+mp.path_vis(fid = 'C:/Users/Matthew/Documents/test.txt', coord = 'rel')
 ```
 **m2py.prompt**(*com*, *baud*): allows for quick, native GCode serial communication with the M2, provided that the proper com port and baud rate are selected, and match what is found in system settings. To exit the command prompt environment, just type `exit` in the IPython console.
 ```python
