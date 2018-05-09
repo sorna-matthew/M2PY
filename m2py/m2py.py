@@ -24,6 +24,11 @@ def mopen(com, baud, printout = 1, fid = ''):
         return handle
         
     elif printout == 0:
+        global print_dir
+        global coord_sys
+        print_dir = fid 
+        coord_sys = 'abs'
+        
         pflag = 0
         handle = open(fid, "w")
         return handle
@@ -33,8 +38,12 @@ def mclose(handle):
     if pflag == 1:
         print("Serial port disconnected")
         handle.close()
+        
     elif pflag == 0:
+        global print_dir
+        global coord_sys
         handle.close()
+        path_vis(fid = print_dir, coord = coord_sys)
 
 def path_vis(fid, coord = 'abs'):
     coord_array = np.zeros([1, 3])
@@ -45,7 +54,6 @@ def path_vis(fid, coord = 'abs'):
                 raw = line.split(' ')
                 coords = [float(raw[0]), float(raw[1]), float(raw[2])]
                 coord_array = np.append(coord_array, [coords[0], coords[1], coords[2]])
-        
         coord_array.shape = (int(len(coord_array)/3), 3)
         
     elif coord == 'rel':
@@ -61,11 +69,16 @@ def path_vis(fid, coord = 'abs'):
     x_coord = coord_array[:,0]
     y_coord = coord_array[:,1]
     z_coord = coord_array[:,2]
-
+    
+    xmin = np.min(x_coord)
+    xmax = np.max(x_coord)
+    ymin = np.min(y_coord)
+    ymax = np.max(y_coord)
+    
     fig = plt.figure()
-    ax = fig.gca(projection='3d')
-    ax.set_xlim3d(0, 203)
-    ax.set_ylim3d(0, 254)
+    ax = fig.gca(projection=Axes3D.name)
+    ax.set_xlim3d(xmin, xmax)
+    ax.set_ylim3d(ymin, ymax)
     ax.set_zlim3d(0, 203)
     ax.set_xlabel('X axis')
     ax.set_ylabel('Y axis')
@@ -156,7 +169,7 @@ def fileread(fid, com, baud):
 # GCode wrappers
 
 # G0/G1       
-def move(handle, x = 0, y = 0, z = 0):
+def move(handle, x = 0, y = 0, z = 0, track = 1):
     global pflag
     if pflag == 1:
         handle.write(str.encode('G1 X{} Y{} Z{}\n'.format(x, y, z)))
@@ -169,7 +182,7 @@ def move(handle, x = 0, y = 0, z = 0):
             read = handle.readline()
             time.sleep(0.06)
             
-    elif pflag == 0:
+    elif pflag == 0 and track == 1:
         handle.write('{} {} {}\n'.format(x, y, z))
 
 
@@ -229,6 +242,9 @@ def home(handle, axes = 'X Y Z'):
         
 # G90/G91
 def coord(handle, coord = 'abs'):
+    global coord_sys
+    coord_sys = coord
+    
     global pflag
     if pflag == 1:
         if coord == 'abs':
