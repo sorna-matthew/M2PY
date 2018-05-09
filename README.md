@@ -24,7 +24,7 @@ import m2py as mp
 mg = mp.mopen('COM3',115200, printout = 0)
 ```
 
-**m2py.mclose**(*ser*): closes the specified handle. If in **mopen** printout = 1, this function will close the necessary serial object. If prinout = 0, this function will close the specified temporary file and plot a visualization of all relevant movement commands. Visualization function will use whatever coordinate system you explicity designate using **coord**. If **coord** isn't explicitly called, the coordinate system used by the visualization tool will be *absolute*.
+**m2py.mclose**(*handle*): closes the specified handle. If in **mopen** printout = 1, this function will close the necessary serial object. If prinout = 0, this function will close the specified temporary file and plot a visualization of all relevant movement commands. Visualization function will use whatever coordinate system you explicity designate using **coord**. If **coord** isn't explicitly called, the coordinate system used by the visualization tool will be *absolute*.
 
 ```python
 import m2py as mp
@@ -56,7 +56,7 @@ mp.fread('C:/Users/Matthew/Documents/m2-python/trunk/print paths/test_path.txt',
 ---
 #### GCode wrappers
 ##### G0 / G1
-**m2py.move**(*ser*, *x=0*, *y=0*, *z=0*): moves to the specified point, keeping in mind the coordinate system (relative / absolute)
+**m2py.move**(*handle*, *x=0*, *y=0*, *z=0*): moves to the specified point, keeping in mind the coordinate system (relative / absolute)
 
 ```python
 import m2py as mp
@@ -64,7 +64,7 @@ mg = mp.mopen('COM3',115200)
 mp.move(mg, x = 10, y = -5) # x, y, z arguments are all keyword arguments, and default to 0 when not called
 mp.mclose(mg)
 ```
-**m2py.speed**(*ser*, *speed=30*): sets the movement speed of the printer to the specified speed in [mm/s] (default `30` mm/sec)
+**m2py.speed**(*handle*, *speed=30*): sets the movement speed of the printer to the specified speed in [mm/s] (default `30` mm/sec)
 
 ```python
 import m2py as mp
@@ -73,7 +73,7 @@ mp.speed(mg, 40) # sets the movement speed of the printer to 40 mm/s
 mp.mclose(mg)
 ```
 ##### G2 / G3
-**m2py.arc**(*ser*, *x=0*, *y=0*, *i=0*, *j=0*, *direction='ccw'*): moves to the specified x-y point, with the i-j point as the center of the arc, with direction specified as `'cw'` or `'ccw'` (default `'ccw'`)
+**m2py.arc**(*handle*, *x=0*, *y=0*, *i=0*, *j=0*, *direction='ccw'*): moves to the specified x-y point, with the i-j point as the center of the arc, with direction specified as `'cw'` or `'ccw'` (default `'ccw'`)
 
 ```python
 import m2py as mp
@@ -82,7 +82,7 @@ mp.arc(mg, x = 10, y = -5, i = 2, j = 3, direction = 'ccw')
 mp.mclose(mg)
 ```
 ##### G4
-**m2py.wait**(*ser*, *seconds=0*): waits for the specified amount of time (default `0` seconds)
+**m2py.wait**(*handle*, *seconds=0*): waits for the specified amount of time (default `0` seconds)
 
 ```python
 import m2py as mp
@@ -91,7 +91,7 @@ mp.wait(mg, 5) # causes the printer to wait for 5 seconds
 mp.mclose(mg)
 ```
 ##### G28
-**m2py.home**(*ser*, *axes='X Y Z'* ): homes the specified axes (default `'X Y Z'`)
+**m2py.home**(*handle*, *axes='X Y Z'* ): homes the specified axes (default `'X Y Z'`)
 
 ```python
 import m2py as mp
@@ -102,7 +102,7 @@ mp.home(mg, axes = 'X Z') # homes only the specified axes
 mp.mclose(mg)
 ```
 ##### G90 / G91
-**m2py.coord**(*ser*, *coord='abs'* ): sets the coordinate system of the printer [relative or absolute] (default `'abs'`)
+**m2py.coord**(*handle*, *coord='abs'* ): sets the coordinate system of the printer [relative or absolute] (default `'abs'`)
 
 ```python
 import m2py as mp
@@ -111,12 +111,21 @@ mp.coord(mg, coord = 'abs') # sets coordinate system to absolute
 mp.coord(mg, coord = 'rel') # sets coordinate system to relative
 mp.mclose(mg)
 ```
+##### G92
+**m2py.set_coords**(*handle*, *x=0*, *y=0*, *z=0* ): sets the current position to the specified (x, y, z) point (keeping in mind the current coordinate system)
 
+```python
+import m2py as mp
+mg = mp.mopen('COM3',115200)
+mp.move(mg, x = 10)
+mp.set_coords(mg, x = 0) # sets this new position to x = 0
+mp.mclose(mg)
+```
 ---
 #### Makergear M2 Pressure Control System (M2PCS) specific functions
 ##### M3 / M4
-**m2py.ch1on**(*ser*): Turns pneumatic Channel 1 ON \
-**m2py.ch1off**(*ser*): Turns pneumatic Channel 1 OFF
+**m2py.ch1on**(*handle*): Turns pneumatic Channel 1 ON \
+**m2py.ch1off**(*handle*): Turns pneumatic Channel 1 OFF
 ```python
 import m2py as mp
 mg = mp.mopen('COM5',115200)
@@ -127,8 +136,8 @@ mp.mclose(mg)
 ```
 
 ##### M5 / M6
-**m2py.ch2on**(*ser*): Turns pneumatic Channel 2 ON \
-**m2py.ch2off**(*ser*): Turns pneumatic Channel 2 OFF
+**m2py.ch2on**(*handle*): Turns pneumatic Channel 2 ON \
+**m2py.ch2off**(*handle*): Turns pneumatic Channel 2 OFF
 ```python
 import m2py as mp
 mg = mp.mopen('COM5',115200)
@@ -139,8 +148,8 @@ mp.mclose(mg)
 ```
 
 ##### M7 / M8
-**m2py.ch3on**(*ser*): Turns pneumatic Channel 3 ON \
-**m2py.ch3off**(*ser*): Turns pneumatic Channel 3 OFF
+**m2py.ch3on**(*handle*): Turns pneumatic Channel 3 ON \
+**m2py.ch3off**(*handle*): Turns pneumatic Channel 3 OFF
 ```python
 import m2py as mp
 mg = mp.mopen('COM5',115200)
@@ -149,7 +158,7 @@ mp.move(mg, x = 10)
 mp.ch3off(mg)
 mp.mclose(mg)
 ```
-**m2py.delay_set**(*ser*, *delay=50*): Sets the delay time (in ms) between a channel turning on and the execution of another command. Can be used to fine tune under extrusion effects, depending on ink viscosity.
+**m2py.delay_set**(*handle*, *delay=50*): sets the delay time (in ms) between a channel turning on and the execution of another command. Can be used to fine tune under extrusion effects, depending on ink viscosity.
 ```python
 import m2py as mp
 mg = mp.mopen('COM5',115200)
@@ -160,7 +169,7 @@ mp.ch3off(mg)
 mp.mclose(mg)
 ```
 
-**m2py.clip**(*ser*, *clip_height=1*, *radius=0.5*): This subroutine automatically turns off all channels, and performs a quick arc/z-translation to shear excess material away from nozzle before continuing with print path.
+**m2py.clip**(*handle*, *clip_height=1*, *radius=0.5*): This subroutine automatically turns off all channels, and performs a quick arc/z-translation to shear excess material away from nozzle before continuing with print path.
  ```python
 import m2py as mp
 mg = mp.mopen('COM5',115200)
@@ -170,7 +179,7 @@ mp.clip(mg, clip_height = 2, radius = 0.1)
 mp.mclose(mg)
 ```
 
-**m2py.change_tool**(*ser*, *dx=0*, *dy=0*, *change_height=10*): This subroutine automatically turns off all channels, and performs a predetermined z translation of z = change_height, and then moves (x,y) = (dx, dy) to allow for change between multiple nozzles. It also automatically lowers back to the z height it was at previously, continuing printing after switching active tools
+**m2py.change_tool**(*handle*, *dx=0*, *dy=0*, *change_height=10*): This subroutine automatically turns off all channels, and performs a predetermined z translation of z = change_height, and then moves (x,y) = (dx, dy) to allow for change between multiple nozzles. It also automatically lowers back to the z height it was at previously, continuing printing after switching active tools
  ```python
 import m2py as mp
 mg = mp.mopen('COM5',115200)
@@ -184,8 +193,8 @@ mp.mclose(mg)
 
 #### Simultaneous functions
 ---
-**m2py.allon**(*ser*): Turns all three pneumatic channels ON \
-**m2py.alloff**(*ser*): Turns all three pneumatic channels OFF
+**m2py.allon**(*handle*): Turns all three pneumatic channels ON \
+**m2py.alloff**(*handle*): Turns all three pneumatic channels OFF
  ```python
 import m2py as mp
 mg = mp.mopen('COM5',115200)

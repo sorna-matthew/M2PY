@@ -14,6 +14,9 @@ from mpl_toolkits.mplot3d import Axes3D
 
 # Serial communication commands
 def mopen(com, baud, printout = 1, fid = os.path.abspath('path_vis_temp.txt')):
+    """
+	Returns the necessary handle (serial object if printout = 1, or temporary file if printout = 0). If printout = 1, this function will instantiate a serial object used by all subsequent function calls to send serial commands to the specified printer. If printout = 0, this function will store all revelant coordinate changes (move and arc commands) to a temporary file that can then be used to visualize print paths before sending commands to the printer. By default, printout = 1.
+    """
     global pflag
     if printout == 1:
         pflag = 1
@@ -35,6 +38,9 @@ def mopen(com, baud, printout = 1, fid = os.path.abspath('path_vis_temp.txt')):
         return handle
        
 def mclose(handle):
+	"""
+	Closes the specified handle. If in mopen printout = 1, this function will close the necessary serial object. If prinout = 0, this function will close the specified temporary file and plot a visualization of all relevant movement commands. Visualization function will use whatever coordinate system you explicity designate using coord. If coord isn't explicitly called, the coordinate system used by the visualization tool will be absolute.
+	"""
     global pflag
     if pflag == 1:
         print("Serial port disconnected")
@@ -47,6 +53,9 @@ def mclose(handle):
         path_vis(fid = print_dir, coord = coord_sys)
 
 def path_vis(fid, coord = 'abs'):
+	"""
+	Takes the (x, y, z) coordinates generated from mp.mopen(printout = 0), and plots them into a 3D line graph to check a print path before actually sending commands to the Makergear. Visualization function will use whatever coordinate system you explicity designate using coord. If coord isn't explicitly called, the coordinate system used by the visualization tool will be absolute. When using path_vis, the file directory of the path coordinates needs to be explicity set, unlike when it is implictly called inside mclose.
+	"""
     coord_array = np.zeros([1, 3])
     
     if coord == 'abs':
@@ -90,7 +99,7 @@ def path_vis(fid, coord = 'abs'):
         
 def prompt(com, baud):
     """
-    Creates a serial connection with the printer found at the specified com and at the given baud, and allows for GCode commands to be sent
+	Allows for quick, native GCode serial communication with the M2, provided that the proper com port and baud rate are selected, and match what is found in system settings. To exit the command prompt environment, just type exit in the IPython console.
     """
     escape = 0;
     cmd = ''
@@ -147,7 +156,7 @@ def prompt(com, baud):
 
 def file_read(fid, com, baud):
     """
-    Reads in and sends an entire GCode txt file to the specified printer at the given baud 
+	Reads in a text file of GCode line by line, and waits for the M2 to acknowledge that it received the command before sending another, maintaining print accuracy.
     """
     #Create and define serial port parameters
     handle = serial.Serial(com, baud, timeout = 100)
@@ -174,6 +183,9 @@ def file_read(fid, com, baud):
 
 # G0/G1       
 def move(handle, x = 0, y = 0, z = 0, track = 1):
+	"""
+	Moves to the specified point, keeping in mind the coordinate system (relative / absolute)
+	"""
     global pflag
     if pflag == 1:
         handle.write(str.encode('G1 X{} Y{} Z{}\n'.format(x, y, z)))
@@ -191,6 +203,9 @@ def move(handle, x = 0, y = 0, z = 0, track = 1):
 
 
 def speed(handle, speed = 30):
+	"""
+	Sets the movement speed of the printer to the specified speed in [mm/s] (default 30 mm/sec)
+	"""
     global pflag
     if pflag == 1:
         handle.write(str.encode('G1 F{}\n'.format(speed*60)))
@@ -202,6 +217,9 @@ def speed(handle, speed = 30):
     
 # G2/G3
 def arc(handle, x = 0, y = 0, z = 0, i = 0, j = 0, direction = 'ccw'):
+	"""
+	Moves to the specified x-y point, with the i-j point as the center of the arc, with direction specified as 'cw' or 'ccw' (default 'ccw')
+	"""
     global pflag
     if pflag == 1:
         if direction == 'ccw':
@@ -224,6 +242,9 @@ def arc(handle, x = 0, y = 0, z = 0, i = 0, j = 0, direction = 'ccw'):
         
 # G4
 def wait(handle, seconds = 0):
+	"""
+	Waits for the specified amount of time (default 0 seconds)
+	"""
     global pflag
     if pflag == 1:
         handle.write(str.encode('G4 S{}\n'.format(seconds)))
@@ -235,6 +256,9 @@ def wait(handle, seconds = 0):
 
 # G28
 def home(handle, axes = 'X Y Z'):
+	"""
+	Homes the specified axes (default 'X Y Z')
+	"""
     global pflag
     if pflag == 1:
         handle.write(str.encode('G28 {}\n'.format(axes)))
@@ -246,6 +270,9 @@ def home(handle, axes = 'X Y Z'):
         
 # G90/G91
 def coord(handle, coord = 'abs'):
+	"""
+	Sets the coordinate system of the printer [relative or absolute] (default 'abs')
+	"""
     global coord_sys
     coord_sys = coord
     
@@ -269,6 +296,9 @@ def coord(handle, coord = 'abs'):
 
 # G92       
 def set_coords(handle, x = 0, y = 0, z = 0):
+	"""
+	Sets the current position to the specified (x, y, z) point (keeping in mind the current coordinate system)
+	"""
     global pflag
     if pflag == 1:
         handle.write(str.encode('G92 X{} Y{} Z{}\n'.format(x, y, z)))
@@ -280,6 +310,9 @@ def set_coords(handle, x = 0, y = 0, z = 0):
 
 # CORE SHELL SPECIFIC FUNCTIONS
 def allon(handle):
+	"""
+	Turns pneumatic CHANNEL 1, 2, 3 ON
+	"""
     global pflag
     if pflag == 1:
         handle.write(str.encode('M3\n'))
@@ -300,6 +333,9 @@ def allon(handle):
         print('All Channels ON')
 
 def alloff(handle):
+	"""
+	Turns pneumatic CHANNEL 1, 2, 3 OFF
+	"""
     global pflag
     if pflag == 1:
         handle.write(str.encode('M4\n'))
@@ -321,6 +357,9 @@ def alloff(handle):
 
 # M3    
 def ch1on(handle):
+	"""
+	Turns pneumatic CHANNEL 1 ON
+	"""
     global pflag
     if pflag == 1:
         handle.write(str.encode('M3\n'))
@@ -332,6 +371,9 @@ def ch1on(handle):
 
 # M4
 def ch1off(handle):
+	"""
+	Turns pneumatic CHANNEL 1 OFF
+	"""
     global pflag
     if pflag == 1:
         handle.write(str.encode('M4\n'))
@@ -343,6 +385,9 @@ def ch1off(handle):
 
 # M5    
 def ch2on(handle):
+	"""
+	Turns pneumatic CHANNEL 2 ON
+	"""
     global pflag
     if pflag == 1:
         handle.write(str.encode('M5\n'))
@@ -354,6 +399,9 @@ def ch2on(handle):
 
 # M6
 def ch2off(handle):
+	"""
+	Turns pneumatic CHANNEL 2 OFF
+	"""
     global pflag
     if pflag == 1:
         handle.write(str.encode('M6\n'))
@@ -365,6 +413,9 @@ def ch2off(handle):
 
 # M7
 def ch3on(handle):
+	"""
+	Turns pneumatic CHANNEL 3 ON
+	"""
     global pflag
     if pflag == 1:
         handle.write(str.encode('M7\n'))
@@ -376,6 +427,9 @@ def ch3on(handle):
 
 # M8
 def ch3off(handle):
+	"""
+	Turns pneumatic CHANNEL 3 OFF
+	"""
     global pflag
     if pflag == 1:
         handle.write(str.encode('M8\n'))
@@ -386,6 +440,9 @@ def ch3off(handle):
         print('Channel 3 OFF')
     
 def delay_set(handle, delay = 50):
+	"""
+	Sets the delay time (in ms) between a channel turning on and the execution of another command. Can be used to fine tune under extrusion effects, depending on ink viscosity.
+	"""
     global pflag
     if pflag == 1:
         handle.write(str.encode('M50 S{}\n'.format(delay)))
@@ -396,6 +453,9 @@ def delay_set(handle, delay = 50):
         print('Channel ON delay time changed to {} ms'.format(delay))
 
 def clip(handle, clip_height = 1, radius = 0.5):
+	"""
+	This subroutine automatically turns off all channels, and performs a quick arc/z-translation to shear excess material away from nozzle before continuing with print path.
+	"""
     global pflag
     if pflag == 1:
         alloff(handle)
@@ -403,6 +463,9 @@ def clip(handle, clip_height = 1, radius = 0.5):
         print('Print clipped')
 
 def change_tool(handle, dx = 0, dy = 0, change_height = 10):
+	"""
+	This subroutine automatically turns off all channels, and performs a predetermined z translation of z = change_height, and then moves (x,y) = (dx, dy) to allow for change between multiple nozzles. It also automatically lowers back to the z height it was at previously, continuing printing after switching active tools
+	"""
     global pflag
     if pflag == 1:
         alloff(handle)
