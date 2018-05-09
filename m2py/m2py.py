@@ -3,6 +3,7 @@
 # Author: Matthew Sorna [sorna@seas.upenn.edu]
 
 # Importing of necessary dependent modules
+import os
 import serial
 import time
 import numpy as np
@@ -12,7 +13,7 @@ from mpl_toolkits.mplot3d import Axes3D
 # Module Function Definitions
 
 # Serial communication commands
-def mopen(com, baud, printout = 1, fid = ''):
+def mopen(com, baud, printout = 1, fid = os.path.abspath('path_vis_temp.txt')):
     global pflag
     if printout == 1:
         pflag = 1
