@@ -145,7 +145,7 @@ def prompt(com, baud):
                     z = z + zval
             print('Currently at ({}, {}, {})'.format(x, y, z))
 
-def fileread(fid, com, baud):
+def file_read(fid, com, baud):
     """
     Reads in and sends an entire GCode txt file to the specified printer at the given baud 
     """
@@ -159,10 +159,13 @@ def fileread(fid, com, baud):
     print('Beginning print')
     with open(fid, "r") as gcode:
         for line in gcode:
-            handle.write(str.encode('{}\n'.format(line))) #Reads in text file (GCode) line by line and sends commands to M2
-            read = handle.readline()
-            while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
+            split_line = line.split(';') # chops off comments
+            if split_line[0] != '':      # makes sure it's not a comment-only line of GCode
+                handle.write(str.encode('{}\n'.format(split_line[0]))) #Reads in text file (GCode) line by line and sends commands to M2
+                print(split_line[0])
                 read = handle.readline()
+                while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
+                    read = handle.readline()
                 
     print('Print complete!\nSerial port closed')
     handle.close() #Closes serial port
