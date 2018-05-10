@@ -1,29 +1,46 @@
 from tkinter import Tk, Label, Button, Entry
+from tkinter.ttk import Combobox
+from tkinter.filedialog import askopenfilename
 import m2py as mp
+import serial.tools.list_ports
 
 global mg
-mg = ''
 
 window = Tk()
 window.title('Makergear M2 Pneumatic Control System GUI')
-window.geometry('845x230')
+window.geometry('1000x250')
 
-lbl_title = Label(window, text = 'Makergear M2', font = ("Arial Bold", 10))
-lbl_title.grid(column = 0, row = 0)
-lbl_title2 = Label(window, text = 'Pneumatic Control System', font = ("Arial Bold", 10))
-lbl_title2.grid(column = 0, row = 1)
+lbl_title = Label(window, text = 'Makergear M2 Pneumatic Control System', font = ("Arial Bold", 10))
+lbl_title.grid(column = 0, row = 0, columnspan = 2)
 
+btn_file_open = Button(text = 'Open File')
+btn_file_open.grid(column = 3, row = 0)
+btn_file_print = Button(text = 'Print File', state = 'disabled')
+btn_file_print.grid(column = 3, row = 2)
+lbl_file_open = Label(text = '')
+lbl_file_open.grid(column = 4, row = 0, columnspan = 20)
+
+# COMPORT Setting
+comm_data = serial.tools.list_ports.comports()
+comm_list = []
+for i in range(len(comm_data)):
+    comm_list.append(comm_data[i].device)
+comm_tuple = tuple(comm_list)
+combo_com = Combobox(window)
+combo_com.grid(column = 1, row = 2)
+combo_com['values'] = comm_tuple
 lbl_com = Label(window, text = 'COMPORT: ###',font = ("Arial", 10), fg = 'red')
-lbl_com.grid(column = 0, row = 2)
-entry_com = Entry(window, width = 10)
-entry_com.grid(column= 1, row = 2)
+lbl_com.grid(column = 0, row = 2, sticky = 'W')
 btn_com_set = Button(window, text = 'SET')
 btn_com_set.grid(column = 2, row = 2)
 
-lbl_speed = Label(window, text = 'BAUDRATE: ### bps',font = ("Arial", 10), fg = 'red')
-lbl_speed.grid(column = 0, row = 3)
-entry_speed = Entry(window, width = 10)
-entry_speed.grid(column= 1, row = 3)
+#SPEED Setting
+combo_speed = Combobox(window)
+combo_speed.grid(column = 1, row = 3)
+combo_speed['values'] = (9600, 14400, 19200, 38400, 57600, 115200, 128000, 256000)
+combo_speed.current(5)
+lbl_speed = Label(window, text = 'BAUDRATE: ### BPS',font = ("Arial", 10), fg = 'red')
+lbl_speed.grid(column = 0, row = 3, sticky = 'W')
 btn_speed_set = Button(window, text = 'SET')
 btn_speed_set.grid(column = 2, row = 3)
 
@@ -32,7 +49,7 @@ btn_connect.grid(column = 3, row = 3)
     
 #Homing buttons
 lbl_home = Label(window, text = 'HOMING:',font = ("Arial", 10))
-lbl_home.grid(column = 0, row = 4)
+lbl_home.grid(column = 0, row = 4, sticky = 'W')
 btn_homeall= Button(window, text='Home All Axes', bg = 'light gray')
 btn_homex= Button(window, text='Home X Axis', bg = 'light gray')
 btn_homey= Button(window, text='Home Y Axis', bg = 'light gray')
@@ -44,14 +61,14 @@ btn_homez.grid(column=4, row=4)
 
 #Coordinate system buttons
 lbl_coord_sys = Label(window, text = 'COORD SYS:',font = ("Arial", 10))
-lbl_coord_sys.grid(column = 0, row = 5)
+lbl_coord_sys.grid(column = 0, row = 5, sticky = 'W')
 btn_rel = Button(window, text='Relative', bg = 'light gray')
 btn_rel.grid(column = 1, row = 5)
 btn_abs = Button(window, text='Absolute', bg = 'light gray')
 btn_abs.grid(column = 2, row = 5)
 
 lbl_manual_move = Label(window, text = 'MOVE:', font = ("Arial", 10))
-lbl_manual_move.grid(column = 0, row = 6)
+lbl_manual_move.grid(column = 0, row = 6, sticky = 'W')
 
 lbl_dx = Label(window, text = 'dx', font = ("Arial", 10))
 lbl_dx.grid(column = 1, row = 6)
@@ -117,15 +134,15 @@ def set_com():
     global zcoord
     zcoord = 0
     global comport
-    comport = entry_com.get()
+    comport = combo_com.get()
     lbl_com.configure(text = 'COMPORT: {}'.format(comport), fg = 'blue')
 btn_com_set.config(command = set_com)
 
 #SET SPEED
 def set_speed():
     global speed
-    speed = entry_speed.get()
-    lbl_speed.configure(text = 'BAUDRATE: {} bps'.format(speed), fg = 'blue')    
+    speed = combo_speed.get()
+    lbl_speed.configure(text = 'BAUDRATE: {} BPS'.format(speed), fg = 'blue')    
 btn_speed_set.config(command = set_speed)
 
 def home_all():
@@ -207,14 +224,12 @@ def update_coords(dx = 0, dy = 0, dz = 0):
     global mg
     global xcoord
     global ycoord
-    global zcoord
-    
-    if mg != '':
-        mp.move(mg, x = dx, y = dy, z = dz)
-        xcoord = xcoord + dx
-        ycoord = ycoord + dy
-        zcoord = zcoord + dz
-        lbl_coords.configure(text = '    Current coordinates: ({}, {}, {})'.format(xcoord, ycoord, zcoord), fg = 'blue')
+    global zcoord    
+	mp.move(mg, x = dx, y = dy, z = dz)
+	xcoord = xcoord + dx
+	ycoord = ycoord + dy
+	zcoord = zcoord + dz
+	lbl_coords.configure(text = '    Current coordinates: ({}, {}, {})'.format(xcoord, ycoord, zcoord), fg = 'blue')
     
 btn_up.configure(command = lambda: update_coords(dy = int(entry_dy.get())))
 btn_down.configure(command = lambda: update_coords(dy = -int(entry_dy.get())))
@@ -222,5 +237,20 @@ btn_right.configure(command = lambda: update_coords(dx = int(entry_dx.get())))
 btn_left.configure(command = lambda: update_coords(dx = -int(entry_dx.get())))
 btn_zup.configure(command = lambda: update_coords(dz = -int(entry_dz.get())))
 btn_zdown.configure(command = lambda: update_coords(dz = int(entry_dz.get())))
+
+def open_file():
+    global file_dir
+    file_dir = askopenfilename(initialdir = "/",title = "Select file",filetypes = (("txt files","*.txt"),("GCode files","*.gcode"),("all files","*.*")))
+    lbl_file_open.config(text = '{}'.format(file_dir))
+    btn_file_print.config(state = 'active')
+btn_file_open.config(command = open_file)
+
+def print_file():
+    global mg
+    global file_dir
+    global comport
+    global speed
+    mp.file_read(fid = file_dir, com = comport, baud = speed)
+btn_file_print.config(command = print_file)
 
 window.mainloop()
