@@ -11,7 +11,7 @@ window.title('[M2PCS] GCode Tool')
 window.geometry('400x110')
 
 #COMPORT
-lbl_com = Label(window, text = 'COMPORT: ____',font = ("Courier New", 8), fg = 'red')
+lbl_com = Label(window, text = 'COMPORT: ****',font = ("Courier New", 8), fg = 'red')
 lbl_com.grid(column = 0, row = 0, sticky = 'W')
 comm_data = serial.tools.list_ports.comports()
 comm_list = []
@@ -25,7 +25,7 @@ btn_com_set = Button(window, text = 'SET', font = ("Courier New", 8), bg = 'ligh
 btn_com_set.grid(column = 2, row = 0)
 
 #SPEED
-lbl_speed = Label(window, text = 'BAUDRATE: ______ BPS',font = ("Courier New", 8), fg = 'red')
+lbl_speed = Label(window, text = 'BAUDRATE: ****** BPS',font = ("Courier New", 8), fg = 'red')
 lbl_speed.grid(column = 0, row = 1, sticky = 'W')
 combo_speed = Combobox(window, font = ("Courier New", 8))
 combo_speed.grid(column = 1, row = 1)
