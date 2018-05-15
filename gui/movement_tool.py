@@ -7,7 +7,7 @@ import m2py as mp
 
 window = Tk()
 window.title('[M2PCS] Movement Tool')
-window.geometry('620x400')
+window.geometry('640x415')
 
 xcoord = DoubleVar()
 ycoord = DoubleVar()
@@ -70,17 +70,34 @@ combo_zpm = Combobox(width = 6, values = (0.1, 0.5, 1, 5, 10, 20, 50, 100), stat
 combo_zpm.grid(column = 6, row = 5)
 combo_zpm.current(3)
 
+#Channel Control Buttons
+btn_ch1 = Button(text = 'CH 1', font = ('Courier New',12), state = 'disabled', relief = 'raised', bg = 'lightgray')
+btn_ch1.grid(row = 6, column = 7)
+
+btn_ch2 = Button(text = 'CH 2', font = ('Courier New',12), state = 'disabled', relief = 'raised', bg = 'lightgray')
+btn_ch2.grid(row = 6, column = 8)
+
+btn_ch3 = Button(text = 'CH 3', font = ('Courier New',12), state = 'disabled', relief = 'raised', bg = 'lightgray')
+btn_ch3.grid(row = 6, column = 9)
+
+btn_allon = Button(text = 'ALL ON', font = ('Courier New',12), state = 'disabled', relief = 'raised', bg = 'lightgray')
+btn_allon.grid(row = 5, column = 8)
+
+btn_alloff = Button(text = 'ALL OFF', font = ('Courier New',12), state = 'disabled', relief = 'raised', bg = 'lightgray')
+btn_alloff.grid(row = 7, column = 8)
+
+
 #Homing Buttons
-btn_home_all = Button(text = 'Home All', font = ('Courier New',12), state = 'disabled')
+btn_home_all = Button(text = 'Home All', font = ('Courier New',12), state = 'disabled', bg = 'lightgray')
 btn_home_all.grid(column = 7, row = 0, columnspan = 3)
 
-btn_home_x = Button(text = 'Home X', font = ('Courier New',12), state = 'disabled')
+btn_home_x = Button(text = 'Home X', font = ('Courier New',12), state = 'disabled', bg = 'lightgray')
 btn_home_x.grid(column = 7, row = 1)
 
-btn_home_y = Button(text = 'Home Y', font = ('Courier New',12), state = 'disabled')
+btn_home_y = Button(text = 'Home Y', font = ('Courier New',12), state = 'disabled', bg = 'lightgray')
 btn_home_y.grid(column = 8, row = 1)
 
-btn_home_z = Button(text = 'Home Z', font = ('Courier New',12), state = 'disabled')
+btn_home_z = Button(text = 'Home Z', font = ('Courier New',12), state = 'disabled', bg = 'lightgray')
 btn_home_z.grid(column = 9, row = 1)
 
 #COMPORT
@@ -149,7 +166,12 @@ def connect():
     combo_xpm.configure(state = 'normal')
     combo_ypm.configure(state = 'normal')
     combo_zpm.configure(state = 'normal')
-
+    btn_ch1.configure(state = 'normal')
+    btn_ch2.configure(state = 'normal')
+    btn_ch3.configure(state = 'normal')
+    btn_allon.configure(state = 'normal')
+    btn_alloff.configure(state = 'normal')
+    
 def disconnect():
     global connect_status
     global mg
@@ -196,6 +218,46 @@ btn_xm.configure(command = lambda: update_coord(dx = -float(combo_xpm.get())))
 btn_yp.configure(command = lambda: update_coord(dy = combo_ypm.get()))
 btn_ym.configure(command = lambda: update_coord(dy = -float(combo_ypm.get())))
 btn_zp.configure(command = lambda: update_coord(dz = -float(combo_zpm.get())))
-btn_zm.configure(command = lambda: update_coord(dz = combo_zpm.get()))     
+btn_zm.configure(command = lambda: update_coord(dz = combo_zpm.get()))
 
+def channel_on(channels = 0):
+    global mg
+    if channels == 1:
+        mp.ch1on(mg)
+        btn_ch1.configure(relief = 'sunken', command = lambda: channel_off(channels = 1))
+    elif channels == 2:
+        mp.ch2on(mg)
+        btn_ch2.configure(relief = 'sunken', command = lambda: channel_off(channels = 2))
+    elif channels == 3:
+        mp.ch3on(mg)
+        btn_ch3.configure(relief = 'sunken', command = lambda: channel_off(channels = 3))
+    elif channels == 4:
+        mp.allon(mg)
+        btn_ch1.configure(relief = 'sunken', command = lambda: channel_off(channels = 1))
+        btn_ch2.configure(relief = 'sunken', command = lambda: channel_off(channels = 2))
+        btn_ch3.configure(relief = 'sunken', command = lambda: channel_off(channels = 3))
+        
+def channel_off(channels = 0):
+    global mg
+    if channels == 1:
+        mp.ch1off(mg)
+        btn_ch1.configure(relief = 'raised', command = lambda: channel_on(channels = 1))
+    elif channels == 2:
+        mp.ch2off(mg)
+        btn_ch2.configure(relief = 'raised', command = lambda: channel_on(channels = 2))
+    elif channels == 3:
+        mp.ch3off(mg)
+        btn_ch3.configure(relief = 'raised', command = lambda: channel_on(channels = 3))
+    elif channels == 4:
+        mp.alloff(mg)
+        btn_ch1.configure(relief = 'raised', command = lambda: channel_on(channels = 1))
+        btn_ch2.configure(relief = 'raised', command = lambda: channel_on(channels = 2))
+        btn_ch3.configure(relief = 'raised', command = lambda: channel_on(channels = 3))
+
+btn_ch1.configure(command = lambda: channel_on(channels = 1))
+btn_ch2.configure(command = lambda: channel_on(channels = 2))
+btn_ch3.configure(command = lambda: channel_on(channels = 3))
+btn_allon.configure(command = lambda: channel_on(channels = 4))
+btn_alloff.configure(command = lambda: channel_off(channels = 4))
+        
 window.mainloop()
