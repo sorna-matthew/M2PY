@@ -151,6 +151,7 @@ def connect():
     global speed
     mg = mp.mopen(comport, speed)
     mp.coord(mg, coord = 'rel')
+    mp.delay_set(mg, delay = 1)
     connect_status = 1
     btn_connect.configure(text = 'Disconnect', bg = 'salmon', font = ("Courier New", 20), command = lambda: disconnect())
     btn_xp.configure(state = 'normal')
