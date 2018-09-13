@@ -2,7 +2,7 @@
 from tkinter import Tk, Label, Button, Entry
 from tkinter.ttk import Combobox
 from tkinter.filedialog import askopenfilename
-import m2py as mp
+import m2py_old as mp
 import serial.tools.list_ports
 import os
 

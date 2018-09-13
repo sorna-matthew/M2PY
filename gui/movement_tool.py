@@ -2,7 +2,7 @@
 from tkinter import Tk, Label, Button, Entry, DoubleVar
 from tkinter.ttk import Combobox
 import serial.tools.list_ports
-import m2py as mp
+import m2py_old as mp
 
 
 window = Tk()
