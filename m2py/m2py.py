@@ -124,7 +124,7 @@ class Makergear:
                 while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
                     read = self.handle.readline()
                     time.sleep(0.06)
-                print('Changing movement speed to {} mm/s'.format(speed))
+                print('Changing rotation speed to {}'.format(int(speed)))
 
     # G2/G3
     def arc(self, x = 0, y = 0, z = 0, i = 0, j = 0, direction = 'ccw'):
@@ -155,8 +155,7 @@ class Makergear:
         """
         Waits for the specified amount of time (default 0 seconds)
         """
-        global pflag
-        if pflag == 1:
+        if self.printout == 1:
             self.handle.write(str.encode('G4 S{}\n'.format(seconds)))
             read = self.handle.readline()
             while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
