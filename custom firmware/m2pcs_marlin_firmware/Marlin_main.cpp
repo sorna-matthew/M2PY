@@ -63,6 +63,11 @@
 
 #define VERSION_STRING  "1.0.2"
 
+//[M2PCS] Motor Control
+#include <SoftwareSerial.h>
+#include <PololuQik.h>
+PololuQik2s12v10 qik(18, 19, 15);
+
 // look here for descriptions of G-codes: http://linuxcnc.org/handbook/gcode/g-code.html
 // http://objects.reprap.org/wiki/Mendel_User_Manual:_RepRapGCodes
 
@@ -559,6 +564,7 @@ int CH2 = 5;
 int CH3 = 2;
 
 int CH_ON_DELAY_TIME = 50;
+int MOTOR_SPEED = 0;
 
 void setup()
 { 
@@ -567,6 +573,9 @@ void setup()
   MYSERIAL.begin(BAUDRATE);
   SERIAL_PROTOCOLLNPGM("start");
   SERIAL_ECHO_START;
+
+  //[M2PCS] Motor Control
+  qik.init();
 
   // Check startup - does nothing if bootloader sets MCUSR to 0
   byte mcu = MCUSR;
@@ -635,6 +644,8 @@ void setup()
   digitalWrite(CH1, HIGH); // RELAY INITIALLY IN OFF POSITION
   digitalWrite(CH2, HIGH); // RELAY INITIALLY IN OFF POSITION
   digitalWrite(CH3, HIGH); // RELAY INITIALLY IN OFF POSITION
+
+  
 }
 
 
@@ -1995,6 +2006,14 @@ void process_commands()
     case 8: // M8 CH3 OFF
         st_synchronize();
         digitalWrite(CH3, HIGH);
+      break;
+
+    case 9: // M9 MOTOR SET SPEED
+        st_synchronize();
+        if (code_seen('S')) {
+          MOTOR_SPEED = code_value();
+          qik.setM0Speed(MOTOR_SPEED);
+        }
       break;
       
     case 50: // SET CHANNEL ON DELAY TIME IN MS
@@ -4685,4 +4704,3 @@ void calculate_volumetric_multipliers() {
 #endif
 #endif
 }
-
