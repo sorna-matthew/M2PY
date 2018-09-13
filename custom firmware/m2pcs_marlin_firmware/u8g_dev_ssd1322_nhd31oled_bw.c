@@ -332,3 +332,4 @@ u8g_pb_t u8g_dev_ssd1322_nhd31oled_2x_bw_pb = { {16, HEIGHT, 0, 0, 0},  WIDTH, u
 u8g_dev_t u8g_dev_ssd1322_nhd31oled_2x_bw_sw_spi = { u8g_dev_ssd1322_nhd31oled_2x_bw_fn, &u8g_dev_ssd1322_nhd31oled_2x_bw_pb, U8G_COM_SW_SPI };
 u8g_dev_t u8g_dev_ssd1322_nhd31oled_2x_bw_hw_spi = { u8g_dev_ssd1322_nhd31oled_2x_bw_fn, &u8g_dev_ssd1322_nhd31oled_2x_bw_pb, U8G_COM_HW_SPI };
 
+

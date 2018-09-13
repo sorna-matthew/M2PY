@@ -90,3 +90,4 @@ uint8_t u8g_dev_flipdisc_2x7_bw_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void
 uint8_t u8g_dev_flipdisc_2x7_bw_buf[WIDTH*2] U8G_NOCOMMON ; 
 u8g_pb_t u8g_dev_flipdisc_2x7_bw_pb = { {16, HEIGHT, 0, 0, 0},  WIDTH, u8g_dev_flipdisc_2x7_bw_buf}; 
 u8g_dev_t u8g_dev_flipdisc_2x7 = { u8g_dev_flipdisc_2x7_bw_fn, &u8g_dev_flipdisc_2x7_bw_pb, u8g_com_null_fn };
+

@@ -6,7 +6,7 @@
 Firmware for M2 hardware revision E - Z Max endstop, four corner leveling.
 Geeetech RRDSC LCD enabled - will run and perform fine with LCD not connected.
 Electronics case and Extruder fans will turn on briefly when the printer powers up, then turn off and remain off
-as long as the Extruder is below 50°C.
+as long as the Extruder is below 50Â°C.
 
 For use with Arduino IDE version 1.5.5 .
 
@@ -44,7 +44,7 @@ Changes: 2/18/2016 v100 - first full version, locking in all changes up to this 
 
 /* All the implementation is done in *.cpp files to get better compatibility with avr-gcc without the Arduino IDE */
 /* Use this file to help the Arduino IDE find which Arduino libraries are needed and to keep documentation on GCode */
-
+#include <SoftwareSerial.h>
 #include "Configuration.h"
 #include "pins.h"
 
@@ -69,3 +69,4 @@ Changes: 2/18/2016 v100 - first full version, locking in all changes up to this 
 #if defined(DIGIPOT_I2C)
   #include <Wire.h>
 #endif
+

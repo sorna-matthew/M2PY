@@ -114,6 +114,18 @@ class Makergear:
                 time.sleep(0.06)
             print('Changing movement speed to {} mm/s'.format(speed))
 
+    def rotate(self, speed = 20):
+            """
+            Sets the rotation speed of the motor to the specified speed [0-127] (default 20)
+            """
+            if self.printout == 1:
+                self.handle.write(str.encode('M9 S{}\n'.format(int(speed))))
+                read = self.handle.readline()
+                while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
+                    read = self.handle.readline()
+                    time.sleep(0.06)
+                print('Changing movement speed to {} mm/s'.format(speed))
+
     # G2/G3
     def arc(self, x = 0, y = 0, z = 0, i = 0, j = 0, direction = 'ccw'):
         """

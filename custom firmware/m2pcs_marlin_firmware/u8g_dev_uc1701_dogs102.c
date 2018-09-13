@@ -111,3 +111,4 @@ U8G_PB_DEV(u8g_dev_uc1701_dogs102_sw_spi , WIDTH, HEIGHT, PAGE_HEIGHT, u8g_dev_d
 U8G_PB_DEV(u8g_dev_uc1701_dogs102_hw_spi , WIDTH, HEIGHT, PAGE_HEIGHT, u8g_dev_dogs102_fn, U8G_COM_HW_SPI);
 
 
+

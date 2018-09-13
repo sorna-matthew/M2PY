@@ -297,3 +297,4 @@ u8g_dev_t u8g_dev_ssd1327_96x96_2x_gr_sw_spi = { u8g_dev_ssd1327_96x96_2x_gr_fn,
 u8g_dev_t u8g_dev_ssd1327_96x96_2x_gr_hw_spi = { u8g_dev_ssd1327_96x96_2x_gr_fn, &u8g_dev_ssd1327_96x96_2x_pb, U8G_COM_HW_SPI };
 u8g_dev_t u8g_dev_ssd1327_96x96_2x_gr_i2c = { u8g_dev_ssd1327_96x96_2x_gr_fn, &u8g_dev_ssd1327_96x96_2x_pb, U8G_COM_SSD_I2C };
 
+

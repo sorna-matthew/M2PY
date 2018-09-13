@@ -824,3 +824,4 @@ class U8GLIB_VS : public U8GLIB
 
 
 #endif /* _CPP_U8GLIB */
+

@@ -324,3 +324,4 @@ u8g_dev_t u8g_dev_ili9325d_320x240_8bit U8G_NOCOMMON = { u8g_dev_ili9325d_320x24
 //U8G_PB_DEV(u8g_dev_ili9325d_320x240_8bit, WIDTH, HEIGHT, PAGE_HEIGHT, u8g_dev_ili9325d_320x240_fn, U8G_COM_PARALLEL);
 
 
+

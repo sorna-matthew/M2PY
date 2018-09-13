@@ -166,3 +166,4 @@ uint8_t u8g_com_arduino_port_d_wr_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, v
 
 #endif /* ARDUINO && PORTD */
 
+

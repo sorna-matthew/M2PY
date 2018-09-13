@@ -46,7 +46,7 @@
 #define MSG_MOVE_01MM                       "Muovi di 0.1mm"
 #define MSG_MOVE_1MM                        "Muovi di   1mm"
 #define MSG_MOVE_10MM                       "Muovi di  10mm"
-#define MSG_SPEED                           "Velcità"
+#define MSG_SPEED                           "VelcitÃ "
 #define MSG_NOZZLE                          "Ugello"
 #define MSG_NOZZLE1                         "Ugello2"
 #define MSG_NOZZLE2                         "Ugello3"
@@ -87,7 +87,7 @@
 #define MSG_TEMPERATURE                     "Temperatura"
 #define MSG_MOTION                          "Movimento"
 #define MSG_VOLUMETRIC                      "Filament"
-#define MSG_VOLUMETRIC_ENABLED		        "E in mm³"
+#define MSG_VOLUMETRIC_ENABLED		        "E in mmÂ³"
 #define MSG_FILAMENT_SIZE_EXTRUDER_0        "Diam. filo 1"
 #define MSG_FILAMENT_SIZE_EXTRUDER_1        "Diam. filo 2"
 #define MSG_FILAMENT_SIZE_EXTRUDER_2        "Diam. filo 3"
@@ -141,3 +141,4 @@
 #endif // DELTA_CALIBRATION_MENU
 
 #endif // LANGUAGE_IT_H
+

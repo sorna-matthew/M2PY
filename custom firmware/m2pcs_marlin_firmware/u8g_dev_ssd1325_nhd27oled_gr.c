@@ -253,3 +253,4 @@ static uint8_t u8g_dev_ssd1325_nhd27oled_2x_gr_fn(u8g_t *u8g, u8g_dev_t *dev, ui
 
 
 #endif /* OBSOLETE_CODE */
+

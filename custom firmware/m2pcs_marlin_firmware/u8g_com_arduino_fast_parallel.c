@@ -243,3 +243,4 @@ uint8_t u8g_com_arduino_fast_parallel_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_va
 
 #endif /* ARDUINO */
 
+

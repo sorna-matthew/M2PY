@@ -65,8 +65,8 @@
 
 //[M2PCS] Motor Control
 #include <SoftwareSerial.h>
-#include <PololuQik.h>
-PololuQik2s12v10 qik(18, 19, 15);
+#include "PololuQik.h"
+PololuQik2s12v10 qik(19, 18, 15);
 
 // look here for descriptions of G-codes: http://linuxcnc.org/handbook/gcode/g-code.html
 // http://objects.reprap.org/wiki/Mendel_User_Manual:_RepRapGCodes
@@ -4704,3 +4704,4 @@ void calculate_volumetric_multipliers() {
 #endif
 #endif
 }
+

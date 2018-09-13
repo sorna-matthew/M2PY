@@ -216,3 +216,4 @@ void u8g_SetPILevel(u8g_t *u8g, uint8_t pi, uint8_t level)
   if ( pin != U8G_PIN_NONE )
     u8g_SetPinLevel(pin, level);
 }
+

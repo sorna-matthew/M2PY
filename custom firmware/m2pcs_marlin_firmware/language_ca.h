@@ -23,14 +23,14 @@
 #define MSG_PREHEAT_PLA2                    "Preescalfar PLA 3"
 #define MSG_PREHEAT_PLA012                  "Preesc. tot PLA"
 #define MSG_PREHEAT_PLA_BEDONLY             "Preesc. llit PLA"
-#define MSG_PREHEAT_PLA_SETTINGS            "Configuració PLA"
+#define MSG_PREHEAT_PLA_SETTINGS            "ConfiguraciÃ³ PLA"
 #define MSG_PREHEAT_ABS                     "Preescalfar ABS"
 #define MSG_PREHEAT_ABS0                    "Preescalfar ABS 1"
 #define MSG_PREHEAT_ABS1                    "Preescalfar ABS 2"
 #define MSG_PREHEAT_ABS2                    "Preescalfar ABS 3"
 #define MSG_PREHEAT_ABS012                  "Preesc. tot ABS"
 #define MSG_PREHEAT_ABS_BEDONLY             "Preesc. llit ABS"
-#define MSG_PREHEAT_ABS_SETTINGS            "Configuració ABS"
+#define MSG_PREHEAT_ABS_SETTINGS            "ConfiguraciÃ³ ABS"
 #define MSG_COOLDOWN                        "Refredar"
 #define MSG_SWITCH_PS_ON                    "Switch power on"
 #define MSG_SWITCH_PS_OFF                   "Switch power off"
@@ -141,3 +141,4 @@
 #endif // DELTA_CALIBRATION_MENU
 
 #endif // LANGUAGE_CA_H
+

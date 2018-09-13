@@ -189,3 +189,4 @@ u8g_pb_t u8g_dev_t6963_128x64_2x_bw_pb = { {PAGE_HEIGHT, HEIGHT, 0, 0, 0},  WIDT
 u8g_dev_t u8g_dev_t6963_128x64_8bit = { u8g_dev_t6963_128x64_fn, &u8g_dev_t6963_128x64_2x_bw_pb, U8G_COM_T6963 };
 
 
+

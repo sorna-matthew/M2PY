@@ -288,3 +288,4 @@ uint8_t u8g_dev_uc1610_dogxl160_2x_gr_buf[WIDTH*2] U8G_NOCOMMON ;
 u8g_pb_t u8g_dev_uc1610_dogxl160_2x_gr_pb = { {8, HEIGHT, 0, 0, 0},  WIDTH, u8g_dev_uc1610_dogxl160_2x_gr_buf}; 
 u8g_dev_t u8g_dev_uc1610_dogxl160_2x_gr_sw_spi = { u8g_dev_uc1610_dogxl160_2x_gr_fn, &u8g_dev_uc1610_dogxl160_2x_gr_pb, U8G_COM_SW_SPI };
 u8g_dev_t u8g_dev_uc1610_dogxl160_2x_gr_hw_spi = { u8g_dev_uc1610_dogxl160_2x_gr_fn, &u8g_dev_uc1610_dogxl160_2x_gr_pb, U8G_COM_HW_SPI };
+

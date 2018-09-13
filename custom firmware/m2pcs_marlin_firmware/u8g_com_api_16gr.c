@@ -92,3 +92,4 @@ uint8_t u8g_WriteSequence4LTo16GrDevice(u8g_t *u8g, u8g_dev_t *dev, uint8_t cnt,
   } while( cnt != 0 );
   return 1;
 }
+
