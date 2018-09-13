@@ -67,20 +67,17 @@ class Makergear:
         x_coord = coord_array[:,0]
         y_coord = coord_array[:,1]
         z_coord = coord_array[:,2]
-        xmin = np.min(x_coord)
-        xmax = np.max(x_coord)
-        ymin = np.min(y_coord)
-        ymax = np.max(y_coord)
 
         fig = plt.figure()
         ax = fig.gca(projection=Axes3D.name)
-        ax.set_xlim3d(xmin, xmax)
-        ax.set_ylim3d(ymin, ymax)
-        ax.set_zlim3d(0, 203)
-        ax.set_xlabel('X axis')
-        ax.set_ylabel('Y axis')
-        ax.set_zlabel('Z axis')
-        ax.plot(x_coord, y_coord, z_coord, color = 'g', linewidth = 1.0, label = 'Print path visualization')
+        ax.set_title('M2PCS Print Visualization')
+        ax.set_xlim3d(0, 205)
+        ax.set_ylim3d(0, 255)
+        ax.set_zlim3d(0, 205)
+        ax.set_xlabel('X [mm]')
+        ax.set_ylabel('Y [mm]')
+        ax.set_zlabel('Z [mm]')
+        ax.plot(x_coord, y_coord, z_coord, color = 'g', linewidth = 1.0, label = 'toolhead')
         ax.legend()
         plt.show()
 
