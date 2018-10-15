@@ -7,7 +7,7 @@ Created on Mon Mar 26 17:25:49 2018
 
 import numpy as np
 import matplotlib.pyplot as plt
-import m2py as mp
+import m2py_old as mp
 
 # Defining x values
 dx = 0.34

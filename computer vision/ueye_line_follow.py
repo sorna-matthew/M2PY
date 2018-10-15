@@ -54,8 +54,9 @@ def main():
     dy0 = 0
     dir_x = [0]
     dir_y = [0]
-    track_x = [0]
-    track_y = [0]
+    xtr = [0]
+    ytr = [0]
+    gamma = 0
     
     while True:
         img = ueye.get_data(mem_ptr, width, height, bitspixel, lineinc, copy=True)
@@ -79,8 +80,8 @@ def main():
             beta = 90 - angle
             
         # Keep on the line
-        S = 0.1
-        tracking_radius = 55
+        S = 0.2
+        tracking_radius = 50
         D = np.sqrt((cx - cx0)**2 + (cy - cy0)**2)
         dx1 = (cx - cx0)/D
         dy1 = (cy - cy0)/D
@@ -90,7 +91,7 @@ def main():
             m.move(x = dx1*S, y = -dy1*S)
         
         # Move along the line
-        T = .15
+        T = 0.3
         # NORTH
         if direction == 1:
             if angle > 90:
@@ -214,29 +215,40 @@ def main():
         # Image saving 
         cv2.imshow('Line Following Test', img)
         #time.sleep(0.25)
-        direct = 'C:/Users/University of Penn/Desktop/Video Capture/follow2/{:05}.png'.format(ct)
-        cv2.imwrite(direct, img)
+        #direct = 'C:/Users/University of Penn/Desktop/Video Capture/follow2/{:05}.png'.format(ct)
+        #cv2.imwrite(direct, img)
+        
+        # Winding angle calculation
+        if (dir_x[-1] != 0) and (dir_y[-1] != 0):
+            x1 = dir_x[-1]
+            y1 = dir_y[-1]
+            x2 = dx0
+            y2 = dy0
+            dot = x1*x2 + y1*y2      # dot product
+            det = x1*y2 - y1*x2      # determinant
+            g = np.arctan2(det, dot)  # np.arctan2(y, x) or np.arctan2(sin, cos)
+            gamma = gamma + g
         
         # Tracking path 
         dir_x.append(dx0)
         dir_y.append(dy0)
-        track_x.append(track_x[-1]+dx0)
-        track_y.append(track_y[-1]+dy0)
-
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+        xtr.append(xtr[-1]+dx0)
+        ytr.append(ytr[-1]+dy0)
+        
+        if cv2.waitKey(1) & 0xFF == ord('q') or (abs(gamma) > 2*np.pi and abs(xtr[-1]) < 10 and abs(ytr[-1]) < 10):
             break 
         ct = ct + 1
-        
-    # Plot tracking path    
-    plt.plot(track_x,track_y)
-    plt.axis('scaled')    
 
     cv2.destroyAllWindows()
     m.close()
     
-    # cleanup
+    # Cleanup
     ueye.is_StopLiveVideo(hcam, ueye.IS_FORCE_VIDEO_STOP)
     ueye.is_ExitCamera(hcam)
+    plt.plot(xtr, ytr)
     
+    return [xtr, ytr]
+    
+            
 if __name__ == '__main__':
-    main()
+    data = main()
