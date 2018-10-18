@@ -9,6 +9,7 @@ import time
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+import matplotlib.patches as mpatches
 
 # Module Function Definitions
 
@@ -106,24 +107,32 @@ class Makergear:
         ax.set_xlim3d(xmin, xmax)
         ax.set_ylim3d(ymin, ymax)
         ax.set_zlim3d(0, 203)
-        ax.set_xlabel('X axis')
-        ax.set_ylabel('Y axis')
-        ax.set_zlabel('Z axis')
+        ax.set_xlabel('X axis [mm]')
+        ax.set_ylabel('Y axis [mm]')
+        ax.set_zlabel('Z axis [mm]')
         
         for k in range(num_lines):
             
             if np.array_equal(ch_split[k][0], [0, 0, 0]):
-                cstr = '#e0e0d1'
+                cstr = '#484848'
+                linestyle = ':'
             elif np.array_equal(ch_split[k][0], [1, 0, 0]):
                 cstr = '#0000ff'
+                linestyle = '-'
             elif np.array_equal(ch_split[k][0], [0, 1, 0]):
                 cstr = '#00ff00'
+                linestyle = '-'
             elif np.array_equal(ch_split[k][0], [0, 0, 1]):
                 cstr = '#ff0000'
+                linestyle = '-'
                 
-            ax.plot(x_split[k], y_split[k], z_split[k], color = cstr, linewidth = 2)
-            
-        #ax.legend()
+            ax.plot(x_split[k], y_split[k], z_split[k], color = cstr, linewidth = 2, linestyle = linestyle)
+        
+        ch1_patch = mpatches.Patch(color='blue', label='Channel 1')
+        ch2_patch = mpatches.Patch(color='green', label='Channel 2')
+        ch3_patch = mpatches.Patch(color='red', label='Channel 3')
+        plt.legend(handles=[ch1_patch, ch2_patch, ch3_patch], loc = 'best')
+        plt.title('M2PCS Print Path Visualization')
         plt.show()
 
     # GCode wrappers
