@@ -45,6 +45,15 @@ m.close()
 ```python
 m.speed(speed = 40) # sets the movement speed of the printer to 40 mm/s
 ```
+
+```python
+m.rotate(speed = 30) # sets the rotation speed of the motor to the specified speed [0-127] (default 0)
+```
+
+```python
+m.ramp(start = 0, stop = 0, seconds = 1) # sets the rotation speed of the motor from the start speed to the specified stop speed over a given time in seconds [0-127] (default 0 --> 0)
+```
+
 ##### G2 / G3
 **arc**(*x=0*, *y=0*, *i=0*, *j=0*, *direction='ccw'*): moves to the specified x-y point, with the i-j point as the center of the arc, with direction specified as `'cw'` or `'ccw'` (default `'ccw'`)
 
@@ -91,11 +100,12 @@ print(coords)
 m.mclose()
 ```
 
-**set_tool_coords**(*tool=1*, *x=0*, *y=0*, *z=0*): sets internally stored coordinates of each tool, used in switching commands
+**set_tool_coords**(*tool=1*, *x=0*, *y=0*, *z=0*): sets internally stored coordinates of each tool, used in switching commands, relative to tool 1 which is defined at [0,0,0]
  ```python
 m.on(1)
 m.move(x = 10)
-m.change_tool(dx = 20, dy = 5)
+m.set_tool_coords(tool = 1, x = 0, y = 0, z = 0)
+m.set_tool_coords(tool = 2, x = 10, y = 10, z = 0)
 m.on(2)
 m.move(x = 10)
 ```
@@ -104,7 +114,7 @@ m.move(x = 10)
  ```python
 m.on(1)
 m.move(x = 10)
-m.change_tool(dx = 20, dy = 5)
+m.change_tool(change_to = 1)
 m.on(2)
 m.move(x = 10)
 ```
