@@ -66,21 +66,49 @@ m.home() # homes all three axes
 m.home(axes = 'X Z') # homes only the specified axes
 ```
 ##### G90 / G91
-**coord**(*coord='abs'* ): sets the coordinate system of the printer [relative or absolute] (default `'abs'`)
+**coord_sys**(*coord='abs'* ): sets the coordinate system of the printer [relative or absolute] (default `'abs'`)
 
 ```python
-m.coord(coord = 'abs') # sets coordinate system to absolute
-m.coord(coord = 'rel') # sets coordinate system to relative
+m.coord_sys(coord_sys = 'abs') # sets coordinate system to absolute
+m.coord_sys(coord_sys = 'rel') # sets coordinate system to relative
 m.mclose()
 ```
 ##### G92
-**set_coords**(*x=0*, *y=0*, *z=0* ): sets the current position to the specified (x, y, z) point (keeping in mind the current coordinate system)
+**set_current_coords**(*x=0*, *y=0*, *z=0* ): sets the current position to the specified (x, y, z) point (keeping in mind the current coordinate system)
 
 ```python
 m.move(x = 10)
-m.set_coords(x = 0) # sets this new position to x = 0
+m.set_current_coords(x = 0) # sets this new position to x = 0
 m.mclose()
 ```
+
+**return_current_coords**( ): returns the current stored coordinates of the Makergear object
+
+```python
+m.move(x = 10)
+coords = m.return_current_coords( ) # returns current coords
+print(coords)
+m.mclose()
+```
+
+**set_tool_coords**(*tool=1*, *x=0*, *y=0*, *z=0*): sets internally stored coordinates of each tool, used in switching commands
+ ```python
+m.on(1)
+m.move(x = 10)
+m.change_tool(dx = 20, dy = 5)
+m.on(2)
+m.move(x = 10)
+```
+
+**change_tool**(*change_to=1*): This subroutine automatically swiches from the current to speicified tool
+ ```python
+m.on(1)
+m.move(x = 10)
+m.change_tool(dx = 20, dy = 5)
+m.on(2)
+m.move(x = 10)
+```
+
 ---
 #### Makergear M2 Pressure Control System (M2PCS) specific functions
 ##### M3 - M8
@@ -92,29 +120,13 @@ m.move(x = 10)
 m.off(1)
 ```
 
-**delay_set**(*delay=50*): sets the delay time (in ms) between a channel turning on and the execution of another command. Can be used to fine tune under extrusion effects, depending on ink viscosity.
+**set_channel_delay**(*delay=50*): sets the delay time (in ms) between a channel turning on and the execution of another command. Can be used to fine tune under extrusion effects, depending on ink viscosity.
 ```python
-m.delay_set(delay = 50)
+m.set_channel_delay(delay = 50)
 m.on(3)
 m.move(x = 10)
 m.move(x = -10)
 m.off(3)
-```
-
-**clip**(*clip_height=1*, *radius=0.5*): This subroutine automatically turns off all channels, and performs a quick arc/z-translation to shear excess material away from nozzle before continuing with print path.
- ```python
-m.on(1)
-m.move(x = 10)
-m.clip(clip_height = 2, radius = 0.1)
-```
-
-**change_tool**(*dx=0*, *dy=0*, *change_height=10*): This subroutine automatically turns off all channels, and performs a predetermined z translation of z = change_height, and then moves (x,y) = (dx, dy) to allow for change between multiple nozzles. It also automatically lowers back to the z height it was at previously, continuing printing after switching active tools
- ```python
-m.on(1)
-m.move(x = 10)
-m.change_tool(dx = 20, dy = 5)
-m.on(2)
-m.move(x = 10)
 ```
 
 #### Simultaneous functions
