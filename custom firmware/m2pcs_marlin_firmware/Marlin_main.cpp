@@ -4539,7 +4539,9 @@ void kill()
 {
   cli(); // Stop interrupts
   disable_heater();
-
+  digitalWrite(CH1, HIGH);
+  digitalWrite(CH2, HIGH);
+  digitalWrite(CH3, HIGH);
   disable_x();
   disable_y();
   disable_z();

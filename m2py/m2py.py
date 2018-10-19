@@ -51,26 +51,29 @@ class Makergear:
         """
         Moves to the specified point, keeping in mind the coordinate system (relative / absolute)
         """
-        
-        if self.current_coord_sys == 'abs':
-            self.coords = np.array([x, y, z])
-        elif self.current_coord_sys == 'rel':
-            self.coords = self.coords + np.array([x, y, z])
-        
-        if self.printout == 1:
-            self.handle.write(str.encode('G1 X{} Y{} Z{}\n'.format(x, y, z)))
-            read = self.handle.readline()
-            while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
+        try:
+            if self.current_coord_sys == 'abs':
+                self.coords = np.array([x, y, z])
+            elif self.current_coord_sys == 'rel':
+                self.coords = self.coords + np.array([x, y, z])
+            
+            if self.printout == 1:
+                self.handle.write(str.encode('G1 X{} Y{} Z{}\n'.format(x, y, z)))
                 read = self.handle.readline()
-                time.sleep(0.06)
-            print('Move to ({}, {}, {})'.format(x, y, z))
-            while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
-                read = self.handle.readline()
-                time.sleep(0.06)
-
-        elif self.printout == 0 and track == 1:
-            self.handle.write('{} {} {} {} {} {}\n'.format(x, y, z, self.channel_status[0], self.channel_status[1], self.channel_status[2]))
-
+                while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
+                    read = self.handle.readline()
+                    time.sleep(0.06)
+                print('Move to ({}, {}, {})'.format(x, y, z))
+                while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
+                    read = self.handle.readline()
+                    time.sleep(0.06)
+    
+            elif self.printout == 0 and track == 1:
+                self.handle.write('{} {} {} {} {} {}\n'.format(x, y, z, self.channel_status[0], self.channel_status[1], self.channel_status[2]))
+        except:
+            self.handle.write(str.encode('M112\n'))
+            self.close()
+            raise ValueError('Emergency Stop! Channels turned off and serial port disconnected!')
 
     def speed(self, speed = 0):
         """
@@ -151,7 +154,7 @@ class Makergear:
                 print('CW arc to ({}, {}, {}), center at ({}, {})'.format(x, y, z, i, j))
 
         elif self.printout == 0:
-            self.handle.write('{} {} {}\n'.format(x, y, z))
+            self.handle.write('{} {} {} {} {} {}\n'.format(x, y, z, self.channel_status[0], self.channel_status[1], self.channel_status[2]))
 
     # G4
     def wait(self, seconds = 0):
