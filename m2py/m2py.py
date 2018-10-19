@@ -132,37 +132,12 @@ class Makergear:
                                 
                 print('Changing rotation from {} to {} in {} seconds'.format(int(start),int(stop), seconds))
 
-    # G2/G3
-    def arc(self, x = 0, y = 0, z = 0, i = 0, j = 0, direction = 'ccw'):
-        """
-        Moves to the specified x-y point, with the i-j point as the center of the arc, with direction specified as 'cw' or 'ccw' (default 'ccw')
-        """
-        if self.printout == 1:
-            if direction == 'ccw':
-                self.handle.write(str.encode('G3 X{} Y{} Z{} I{} J{}\n'.format(x, y, z, i, j)))
-                read = self.handle.readline()
-                while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
-                    read = self.handle.readline()
-                    time.sleep(0.06)
-                print('CCW arc to ({}, {}, {}), center at ({}, {})'.format(x, y, z, i, j))
-            elif direction == 'cw':
-                self.handle.write(str.encode('G2 X{} Y{} Z{} I{} J{}\n'.format(x, y, z, i, j)))
-                read = self.handle.readline()
-                while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
-                    read = self.handle.readline()
-                    time.sleep(0.06)
-                print('CW arc to ({}, {}, {}), center at ({}, {})'.format(x, y, z, i, j))
-
-        elif self.printout == 0:
-            self.handle.write('{} {} {} {} {} {}\n'.format(x, y, z, self.channel_status[0], self.channel_status[1], self.channel_status[2]))
-
     # G4
     def wait(self, seconds = 0):
         """
         Waits for the specified amount of time (default 0 seconds)
         """
-        global pflag
-        if pflag == 1:
+        if self.printout == 1:
             self.handle.write(str.encode('G4 S{}\n'.format(seconds)))
             read = self.handle.readline()
             while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
