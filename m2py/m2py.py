@@ -75,7 +75,7 @@ class Makergear:
         channel_array.shape = (int(len(channel_array)/3), 3)
         num_moves = channel_array.shape[0]
         
-        ch_split_index = []
+        ch_split_index = np.array([])
         for i in range(num_moves-1):
             if np.array_equal(channel_array[i,:], channel_array[i+1,:]) == False:
                 ch_split_index = np.append(ch_split_index, i+1)
