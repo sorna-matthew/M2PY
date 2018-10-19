@@ -31,7 +31,7 @@ class Makergear:
             for _ in range(21): # Reads in all 21 lines of initialization text for the M2
                 self.handle.readline()
         elif self.printout == 0:
-            self.coord_sys = 'abs'
+            self.current_coord_sys = 'abs'
             self.handle = open(self.fid, "w")
 
     def close(self):
@@ -52,9 +52,9 @@ class Makergear:
         Moves to the specified point, keeping in mind the coordinate system (relative / absolute)
         """
         
-        if self.coord_sys == 'abs':
+        if self.current_coord_sys == 'abs':
             self.coords = np.array([x, y, z])
-        elif self.coord_sys == 'rel':
+        elif self.current_coord_sys == 'rel':
             self.coords = self.coords + np.array([x, y, z])
         
         if self.printout == 1:
@@ -194,10 +194,10 @@ class Makergear:
         """
         Sets the coordinate system of the printer [relative or absolute] (default 'abs')
         """
-        self.coord_sys = coord_sys
+        self.current_coord_sys = coord_sys
 
         if self.printout == 1:
-            if self.coord_sys == 'abs':
+            if self.current_coord_sys == 'abs':
                 self.handle.write(str.encode('G90\n'))
                 read = self.handle.readline()
                 while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
@@ -205,7 +205,7 @@ class Makergear:
                     time.sleep(0.06)
                 print('Set to absolute coordinates')
 
-            elif self.coord_sys == 'rel':
+            elif self.current_coord_sys == 'rel':
                 self.handle.write(str.encode('G91\n'))
                 read = self.handle.readline()
                 while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
@@ -337,11 +337,11 @@ class Makergear:
 
     def change_tool(self, change_to = 1):
         """
-        This subroutine automatically swiches from the current to speicified tool
+        This subroutine automatically turns off all channels, and performs a predetermined z translation of z = change_height, and then moves (x,y) = (dx, dy) to allow for change between multiple nozzles. It also automatically lowers back to the z height it was at previously, continuing printing after switching active tools
         """
         if self.printout == 1:
             self.alloff()
-            old_coord_sys = self.coord_sys
+            old_coord_sys = self.current_coord_sys
             old_coords = self.coords
             self.coord_sys(coord_sys = 'rel')
             coord_change = self.tool_coords[change_to - 1] - self.tool_coords[self.current_tool - 1]
@@ -359,7 +359,7 @@ class Makergear:
         coord_array = np.zeros([1, 3])
         channel_array = np.zeros([1, 3])
 
-        if self.coord_sys == 'abs':
+        if self.current_coord_sys == 'abs':
             with open(self.fid, "r") as data:
                 for line in data:
                     raw = line.split(' ')
@@ -369,7 +369,7 @@ class Makergear:
                     channel_array = np.append(channel_array, [channels[0], channels[1], channels[2]])
             coord_array.shape = (int(len(coord_array)/3), 3)
 
-        elif self.coord_sys == 'rel':
+        elif self.current_coord_sys == 'rel':
             old_coords = [0,0,0]
             with open(self.fid, "r") as data:
                 for line in data:
