@@ -81,22 +81,46 @@ class Makergear:
         r = np.sqrt((x - i)**2 + (y - j)**2)
         start_ang = np.angle(i*-1 + j*-1j)
         stop_ang = np.angle((x-i)*1 + (y-j)*1j)
+        
+        if start_ang < 0:
+            start_ang = start_ang + 2*np.pi
+            if stop_ang > 0:    
+                stop_ang = stop_ang + 2*np.pi
+                
+        if stop_ang < 0:
+            stop_ang = stop_ang + 2*np.pi
 
         if direction == 'ccw':
-            dtheta = (stop_ang - start_ang)
-            if dtheta <= np.pi:
+            if stop_ang > start_ang:
+                dtheta = (stop_ang - start_ang) 
+                s = int(np.ceil((r*dtheta)))
+                theta = np.linspace(start_ang, stop_ang, s)
+            elif start_ang > stop_ang:
                 stop_ang = stop_ang + 2*np.pi
-                dtheta = (stop_ang - start_ang)
-            s = abs(int(r*dtheta))
-            theta = np.linspace(start_ang, stop_ang, s)
+                dtheta = (stop_ang - start_ang) 
+                s = int(np.ceil((r*dtheta)))
+                theta = np.linspace(start_ang, stop_ang, s)
+            elif start_ang == stop_ang:
+                stop_ang = stop_ang + 2*np.pi
+                dtheta = (stop_ang - start_ang) 
+                s = int(np.ceil((r*dtheta)))
+                theta = np.linspace(start_ang, stop_ang, s)
+            
         elif direction == 'cw':
-            dtheta = (stop_ang - start_ang)
-            if dtheta <= np.pi:
-                start_ang = start_ang - 2*np.pi
-                dtheta = (stop_ang - start_ang)
-            s = abs(int(r*dtheta))
-            theta = np.linspace(start_ang, stop_ang, s)
-
+            if stop_ang > start_ang:
+                dtheta = 2*np.pi - (stop_ang - start_ang)
+                s = int(np.ceil((r*dtheta)))
+                theta = np.flip(np.linspace(stop_ang, start_ang + 2*np.pi, s), axis = 0)
+            elif start_ang > stop_ang:
+                dtheta = (start_ang - stop_ang)
+                s = int(np.ceil((r*dtheta)))
+                theta = np.flip(np.linspace(stop_ang, start_ang, s), axis = 0)
+            elif start_ang == stop_ang:
+                stop_ang = stop_ang + 2*np.pi
+                dtheta = (stop_ang - start_ang) 
+                s = int(np.ceil((r*dtheta)))
+                theta = np.flip(np.linspace(start_ang, stop_ang, s), axis = 0)
+           
         xpts = r*np.cos(theta)
         ypts = r*np.sin(theta)
 
