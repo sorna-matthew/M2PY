@@ -91,8 +91,8 @@ class Makergear:
             theta = np.linspace(start_ang, stop_ang, s)
         elif direction == 'cw':
             dtheta = (stop_ang - start_ang)
-            if dtheta >= np.pi:
-                stop_ang = stop_ang - 2*np.pi
+            if dtheta <= np.pi:
+                start_ang = start_ang - 2*np.pi
                 dtheta = (stop_ang - start_ang)
             s = abs(int(r*dtheta))
             theta = np.linspace(start_ang, stop_ang, s)
@@ -443,19 +443,15 @@ class Makergear:
             y_split[j+1] = np.insert(y_split[j+1], 0, y_split[j][-1])
             z_split[j+1] = np.insert(z_split[j+1], 0, z_split[j][-1])
 
-
         xmin = np.min(x_coord)
         xmax = np.max(x_coord)
         ymin = np.min(y_coord)
         ymax = np.max(y_coord)
 
-        xymin = (xmin<=ymin)*xmin + (ymin<xmin)*ymin - 1
-        xymax = (xmax>=ymax)*xmax + (ymax>xmax)*ymax + 1
-
         fig = plt.figure()
         ax = fig.gca(projection=Axes3D.name)
-        ax.set_xlim3d(xymin, xymax)
-        ax.set_ylim3d(xymin, xymax)
+        ax.set_xlim3d(xmin, xmax)
+        ax.set_ylim3d(ymin, ymax)
         ax.set_zlim3d(0, 203)
         ax.set_xlabel('X axis [mm]')
         ax.set_ylabel('Y axis [mm]')
