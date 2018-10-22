@@ -127,9 +127,9 @@ class Makergear:
         dxpts = np.array([])
         dypts = np.array([])
 
-        for i in range(s - 1):
-            dxpts = np.append(dxpts, xpts[i+1] - xpts[i])
-            dypts = np.append(dypts, ypts[i+1] - ypts[i])
+        for ii in range(s - 1):
+            dxpts = np.append(dxpts, xpts[ii+1] - xpts[ii])
+            dypts = np.append(dypts, ypts[ii+1] - ypts[ii])
 
         if self.current_coord_sys == 'abs':
             current_coords = self.return_current_coords()
@@ -137,21 +137,27 @@ class Makergear:
             dypts = dypts + current_coords[1]
             zpt = current_coords[2]
             if self.printout == 1:
-                for j in range(s-1):
-                    self.move(x = dxpts[j], y = dypts[j], z = zpt)
+                for jj in range(s-1):
+                    old_verbose = self.verbose
+                    self.verbose = False
+                    self.move(x = dxpts[jj], y = dypts[jj], z = zpt)
+                    self.verbose = old_verbose
                 if self.verbose: print('Moving in a {} arc to ({},{}) with center ({},{})'.format(direction, x,y,i,j))
             elif self.printout == 0:
-                for j in range(s-1):
-                    self.handle.write('{} {} {} {} {} {}\n'.format(dxpts[j], dypts[j], zpt, self.channel_status[0], self.channel_status[1], self.channel_status[2]))
+                for jj in range(s-1):
+                    self.handle.write('{} {} {} {} {} {}\n'.format(dxpts[jj], dypts[jj], zpt, self.channel_status[0], self.channel_status[1], self.channel_status[2]))
 
         elif self.current_coord_sys == 'rel':
             if self.printout == 1:
-                for j in range(s-1):
-                    self.move(x = dxpts[j], y = dypts[j], z = 0)
+                for jj in range(s-1):
+                    old_verbose = self.verbose
+                    self.verbose = False
+                    self.move(x = dxpts[jj], y = dypts[jj], z = 0)
+                    self.verbose = old_verbose
                 if self.verbose: print('Moving in a {} arc to ({},{}) with center ({},{})'.format(direction, x,y,i,j))
             elif self.printout == 0:
-                for j in range(s-1):
-                    self.handle.write('{} {} {} {} {} {}\n'.format(dxpts[j], dypts[j], 0, self.channel_status[0], self.channel_status[1], self.channel_status[2]))
+                for jj in range(s-1):
+                    self.handle.write('{} {} {} {} {} {}\n'.format(dxpts[jj], dypts[jj], 0, self.channel_status[0], self.channel_status[1], self.channel_status[2]))
 
     def speed(self, speed = 0):
         """
