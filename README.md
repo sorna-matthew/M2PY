@@ -12,7 +12,7 @@ Additonally, these serial commands have been combined with GCode wrappers into t
 ---
 ---
 #### Class definition: Makergear
-**m2py.Makergear**(*com*, *baud*, *printout=0*, *verbose=True*): If printout = 1, this function will instantiate a serial object used by all subsequent function calls to send serial commands to the specified printer. If printout = 0, this function will store all revelant coordinate changes (move and arc commands) to a temporary file that can then be used to visualize print paths before sending commands to the printer. By default, printout = 0. The flag verbose controls the print statements to the console. With verbose = True, all print statements are printed. With verbose = False, all print statements are suppressed. 
+**m2py.Makergear**(*com*, *baud*, *printout=0*, *verbose=True*): If printout = 1, this function will instantiate a serial object used by all subsequent function calls to send serial commands to the specified printer. If printout = 0, this function will store all relevant coordinate changes (move and arc commands) to a temporary file that can then be used to visualize print paths before sending commands to the printer. By default, printout = 0. The flag verbose controls the print statements to the console. With verbose = True, all print statements are printed. With verbose = False, all print statements are suppressed. 
 ```python
 import m2py as mp
 mk = mp.Makergear('COM3',115200)
@@ -20,10 +20,10 @@ mk = mp.Makergear('COM3',115200)
 
 ```python
 import m2py as mp
-mk = mp.Makergear('COM3',115200, printout = 0)
+mk = mp.Makergear('COM3',115200, printout = 1, verbose = False)
 ```
 
-**close**(): closes the specified Makergear object. If printout = 1, this function will close the necessary serial object. If prinout = 0, this function will close the specified temporary file and plot a visualization of all relevant movement commands. Visualization function will use whatever coordinate system you explicity designate using **coord**. If **coord** isn't explicitly called, the coordinate system used by the visualization tool will be *absolute*.
+**close**(): closes the specified Makergear object. If printout = 1, this function will close the necessary serial object. If printout = 0, this function will close the specified temporary file and plot a visualization of all relevant movement commands. Visualization function will use whatever coordinate system you explicity designate using **coord**. If **coord** isn't explicitly called, the coordinate system used by the visualization tool will be *absolute*.
 
 ```python
 import m2py as mp
