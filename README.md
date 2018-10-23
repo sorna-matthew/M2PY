@@ -23,7 +23,7 @@ import m2py as mp
 mk = mp.Makergear('COM3',115200, printout = 1, verbose = False)
 ```
 
-**close**(): closes the specified Makergear object. If printout = 1, this function will close the necessary serial object. If printout = 0, this function will close the specified temporary file and plot a visualization of all relevant movement commands. Visualization function will use whatever coordinate system you explicity designate using **coord**. If **coord** isn't explicitly called, the coordinate system used by the visualization tool will be *absolute*.
+**close**(): closes the specified Makergear object. If printout = 1, this function will close the necessary serial object. If printout = 0, this function will close the specified temporary file and plot a visualization of all relevant movement commands. Visualization function will use whatever coordinate system you explicitly designate using **coord**. If **coord** isn't explicitly called, the coordinate system used by the visualization tool will be *absolute*.
 
 ```python
 import m2py as mp
@@ -46,12 +46,16 @@ mk.close()
 mk.speed(speed = 40) # sets the movement speed of the printer to 40 mm/s
 ```
 
-```python
-mk.rotate(speed = 30) # sets the rotation speed of the motor to the specified speed [0-127] (default 0)
-```
+**rotate**(*speed=0*):sets the rotation speed of the motor to the specified speed (default 0)
 
 ```python
-mk.ramp(start = 0, stop = 0, seconds = 1) # sets the rotation speed of the motor from the start speed to the specified stop speed over a given time in seconds [0-127] (default 0 --> 0)
+mk.rotate(speed = 30) # sets the rotation speed of the motor to 30
+```
+
+**ramp**(*start=0*,*stop=0*,*seconds=1*): sets the rotation speed of the motor from the start speed to the specified stop speed over a given time in seconds [0-127] (default 0 --> 0)
+
+```python
+mk.ramp(start = 0, stop = 0, seconds = 1) # ramps the rotation speed from 0 to 30 in 1 second
 ```
 
 ##### G2 / G3
@@ -110,7 +114,7 @@ mk.on(2)
 mk.move(x = 10)
 ```
 
-**change_tool**(*change_to=1*): This subroutine automatically swiches from the current to speicified tool
+**change_tool**(*change_to=1*): This subroutine automatically switches from the current to specified tool
  ```python
 mk.on(1)
 mk.move(x = 10)
