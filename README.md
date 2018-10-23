@@ -12,23 +12,23 @@ Additonally, these serial commands have been combined with GCode wrappers into t
 ---
 ---
 #### Class definition: Makergear
-**m2py.Makergear**(*com*, *baud*, *printout=1*): If printout = 1, this function will instantiate a serial object used by all subsequent function calls to send serial commands to the specified printer. If printout = 0, this function will store all revelant coordinate changes (move and arc commands) to a temporary file that can then be used to visualize print paths before sending commands to the printer. By default, printout = 1. 
+**m2py.Makergear**(*com*, *baud*, *printout=0*, *verbose=True*): If printout = 1, this function will instantiate a serial object used by all subsequent function calls to send serial commands to the specified printer. If printout = 0, this function will store all revelant coordinate changes (move and arc commands) to a temporary file that can then be used to visualize print paths before sending commands to the printer. By default, printout = 0. The flag verbose controls the print statements to the console. With verbose = True, all print statements are printed. With verbose = False, all print statements are suppressed. 
 ```python
 import m2py as mp
-m = mp.Makergear('COM3',115200)
+mk = mp.Makergear('COM3',115200)
 ```
 
 ```python
 import m2py as mp
-m = mp.Makergear('COM3',115200, printout = 0)
+mk = mp.Makergear('COM3',115200, printout = 0)
 ```
 
 **close**(): closes the specified Makergear object. If printout = 1, this function will close the necessary serial object. If prinout = 0, this function will close the specified temporary file and plot a visualization of all relevant movement commands. Visualization function will use whatever coordinate system you explicity designate using **coord**. If **coord** isn't explicitly called, the coordinate system used by the visualization tool will be *absolute*.
 
 ```python
 import m2py as mp
-m = mp.Makergear('COM3', 115200)
-m.close()
+mk = mp.Makergear('COM3', 115200)
+mk.close()
 ```
 #### GCode wrappers
 ##### G0 / G1
@@ -36,87 +36,87 @@ m.close()
 
 ```python
 import m2py as mp
-m = mp.Makergear('COM3',115200)
-m.move(x = 10, y = -5) # x, y, z arguments are all keyword arguments, and default to 0 when not called
-m.close()
+mk = mp.Makergear('COM3',115200)
+mk.move(x = 10, y = -5) # x, y, z arguments are all keyword arguments, and default to 0 when not called
+mk.close()
 ```
-**speed**(*speed=30*): sets the movement speed of the printer to the specified speed in [mm/s] (default `30` mm/sec)
+**speed**(*speed=0*): sets the movement speed of the printer to the specified speed in [mm/s] (default `0` mm/sec)
 
 ```python
-m.speed(speed = 40) # sets the movement speed of the printer to 40 mm/s
-```
-
-```python
-m.rotate(speed = 30) # sets the rotation speed of the motor to the specified speed [0-127] (default 0)
+mk.speed(speed = 40) # sets the movement speed of the printer to 40 mm/s
 ```
 
 ```python
-m.ramp(start = 0, stop = 0, seconds = 1) # sets the rotation speed of the motor from the start speed to the specified stop speed over a given time in seconds [0-127] (default 0 --> 0)
+mk.rotate(speed = 30) # sets the rotation speed of the motor to the specified speed [0-127] (default 0)
+```
+
+```python
+mk.ramp(start = 0, stop = 0, seconds = 1) # sets the rotation speed of the motor from the start speed to the specified stop speed over a given time in seconds [0-127] (default 0 --> 0)
 ```
 
 ##### G2 / G3
 **arc**(*x=0*, *y=0*, *i=0*, *j=0*, *direction='ccw'*): moves to the specified x-y point, with the i-j point as the center of the arc, with direction specified as `'cw'` or `'ccw'` (default `'ccw'`)
 
 ```python
-m.arc(x = 10, y = -5, i = 2, j = 3, direction = 'ccw') 
+mk.arc(x = 10, y = -5, i = 2, j = 3, direction = 'ccw') 
 ```
 ##### G4
 **wait**(*seconds=0*): waits for the specified amount of time (default `0` seconds)
 
 ```python
-m.wait(seconds = 5) # causes the printer to wait for 5 seconds 
+mk.wait(seconds = 5) # causes the printer to wait for 5 seconds 
 ```
 ##### G28
 **home**(*axes='X Y Z'* ): homes the specified axes (default `'X Y Z'`)
 
 ```python
-m.home(axes = 'X Y Z') # homes all three axes
-m.home() # homes all three axes
-m.home(axes = 'X Z') # homes only the specified axes
+mk.home(axes = 'X Y Z') # homes all three axes
+mk.home() # homes all three axes
+mk.home(axes = 'X Z') # homes only the specified axes
 ```
 ##### G90 / G91
-**coord_sys**(*coord='abs'* ): sets the coordinate system of the printer [relative or absolute] (default `'abs'`)
+**coord_sys**(*coord_sys='abs'* ): sets the coordinate system of the printer [relative or absolute] (default `'abs'`)
 
 ```python
-m.coord_sys(coord_sys = 'abs') # sets coordinate system to absolute
-m.coord_sys(coord_sys = 'rel') # sets coordinate system to relative
-m.mclose()
+mk.coord_sys(coord_sys = 'abs') # sets coordinate system to absolute
+mk.coord_sys(coord_sys = 'rel') # sets coordinate system to relative
+mk.mclose()
 ```
 ##### G92
 **set_current_coords**(*x=0*, *y=0*, *z=0* ): sets the current position to the specified (x, y, z) point (keeping in mind the current coordinate system)
 
 ```python
-m.move(x = 10)
-m.set_current_coords(x = 0) # sets this new position to x = 0
-m.mclose()
+mk.move(x = 10)
+mk.set_current_coords(x = 0) # sets this new position to x = 0
+mk.mclose()
 ```
 
 **return_current_coords**( ): returns the current stored coordinates of the Makergear object
 
 ```python
-m.move(x = 10)
-coords = m.return_current_coords( ) # returns current coords
+mk.move(x = 10)
+coords = mk.return_current_coords( ) # returns current coords
 print(coords)
-m.mclose()
+mk.mclose()
 ```
 
 **set_tool_coords**(*tool=1*, *x=0*, *y=0*, *z=0*): sets internally stored coordinates of each tool, used in switching commands, relative to tool 1 which is defined at [0,0,0]
  ```python
-m.on(1)
-m.move(x = 10)
-m.set_tool_coords(tool = 1, x = 0, y = 0, z = 0)
-m.set_tool_coords(tool = 2, x = 10, y = 10, z = 0)
-m.on(2)
-m.move(x = 10)
+mk.on(1)
+mk.move(x = 10)
+mk.set_tool_coords(tool = 1, x = 0, y = 0, z = 0)
+mk.set_tool_coords(tool = 2, x = 10, y = 10, z = 0)
+mk.on(2)
+mk.move(x = 10)
 ```
 
 **change_tool**(*change_to=1*): This subroutine automatically swiches from the current to speicified tool
  ```python
-m.on(1)
-m.move(x = 10)
-m.change_tool(change_to = 1)
-m.on(2)
-m.move(x = 10)
+mk.on(1)
+mk.move(x = 10)
+mk.change_tool(change_to = 1)
+mk.on(2)
+mk.move(x = 10)
 ```
 
 ---
@@ -125,27 +125,27 @@ m.move(x = 10)
 **on**(*channel*): Turns pneumatic channel ON \
 **off**(*channel*): Turns pneumatic channel OFF
 ```python
-m.on(1)
-m.move(x = 10)
-m.off(1)
+mk.on(1)
+mk.move(x = 10)
+mk.off(1)
 ```
 
 **set_channel_delay**(*delay=50*): sets the delay time (in ms) between a channel turning on and the execution of another command. Can be used to fine tune under extrusion effects, depending on ink viscosity.
 ```python
-m.set_channel_delay(delay = 50)
-m.on(3)
-m.move(x = 10)
-m.move(x = -10)
-m.off(3)
+mk.set_channel_delay(delay = 50)
+mk.on(3)
+mk.move(x = 10)
+mk.move(x = -10)
+mk.off(3)
 ```
 
 #### Simultaneous functions
 **allon**(): Turns all three pneumatic channels ON \
 **alloff**(): Turns all three pneumatic channels OFF
  ```python
-m.allon()
-m.move(x = 10)
-m.alloff()
+mk.allon()
+mk.move(x = 10)
+mk.alloff()
 ```
 Additional functions outside of the Makergear class definition
 ---
