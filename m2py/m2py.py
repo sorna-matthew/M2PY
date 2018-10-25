@@ -478,8 +478,8 @@ class Makergear:
         ymin = np.min(y_coord)
         ymax = np.max(y_coord)
         
-        xymax = (xmax>ymax)*xmax + (ymax>xmax)*ymax
-        xymin = (xmin<ymin)*ymin + (ymin<xmin)*ymin
+        xymax = (xmax>=ymax)*xmax + (ymax>xmax)*ymax
+        xymin = (xmin<=ymin)*ymin + (ymin<xmin)*ymin
 
         fig = plt.figure()
         ax = fig.gca(projection=Axes3D.name)
