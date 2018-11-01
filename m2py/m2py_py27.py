@@ -9,25 +9,31 @@ import serial
 import time
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 from mpl_toolkits.mplot3d import Axes3D
 
 # Module Function Definitions
 
 class Makergear:
-    def __init__(self, com, baud, printout = 1):
+    def __init__(self, com, baud, printout = 0, verbose = True):
         self.com = com
         self.baud = baud
         self.printout = printout
+        self.verbose = verbose
         self.fid = os.path.abspath('path_vis_temp.txt')
+        self.channel_status = np.array([0,0,0])
+        self.coords = np.array([0,0,0])
+        self.current_tool = 1
+        self.tool_coords = np.array([[0,0,0],[0,0,0],[0,0,0]])
 
         if self.printout == 1:
             self.handle = serial.Serial(com, baud, timeout = 1)
             time.sleep(2) # Make sure to give it enough time to initialize
-            print('Serial port connected')
+            if self.verbose: print('Connecting to {}'.format(self.com))
             for _ in range(21): # Reads in all 21 lines of initialization text for the M2
                 self.handle.readline()
         elif self.printout == 0:
-            self.coord_sys = 'abs'
+            self.current_coord_sys = 'abs'
             self.handle = open(self.fid, "w")
 
     def close(self):
@@ -35,53 +41,11 @@ class Makergear:
         Closes the specified handle. If self.printout = 1, this function will close the necessary serial object. If prinout = 0, this function will close the specified temporary file and plot a visualization of all relevant movement commands. Visualization function will use whatever coordinate system you explicity designate using coord. If coord isn't explicitly called, the coordinate system used by the visualization tool will be absolute.
         """
         if self.printout == 1:
-            self.rotate(speed = 0)
-            print("Serial port disconnected")
+            if self.verbose: print('Disconnecting from {}'.format(self.com))
             self.handle.close()
         elif self.printout == 0:
             self.handle.close()
             self.path_vis()
-
-    def path_vis(self):
-        """
-        Takes the (x, y, z) coordinates generated from mp.mopen(printout = 0), and plots them into a 3D line graph to check a print path before actually sending commands to the Makergear. Visualization function will use whatever coordinate system you explicity designate using coord. If coord isn't explicitly called, the coordinate system used by the visualization tool will be absolute. When using path_vis, the file directory of the path coordinates needs to be explicity set, unlike when it is implictly called inside mclose.
-        """
-        coord_array = np.zeros([1, 3])
-
-        if self.coord_sys == 'abs':
-            with open(self.fid, "r") as data:
-                for line in data:
-                    raw = line.split(' ')
-                    coords = [float(raw[0]), float(raw[1]), float(raw[2])]
-                    coord_array = np.append(coord_array, [coords[0], coords[1], coords[2]])
-            coord_array.shape = (int(len(coord_array)/3), 3)
-
-        elif self.coord_sys == 'rel':
-            old_coords = [0,0,0]
-            with open(self.fid, "r") as data:
-                for line in data:
-                    raw = line.split(' ')
-                    coords = [float(raw[0]), float(raw[1]), float(raw[2])]
-                    coord_array = np.append(coord_array, [coords[0] + old_coords[0], coords[1] + old_coords[1], coords[2] + old_coords[2]])
-                    old_coords =  [coords[0] + old_coords[0], coords[1] + old_coords[1], coords[2] + old_coords[2]]
-            coord_array.shape = (int(len(coord_array)/3), 3)
-
-        x_coord = coord_array[:,0]
-        y_coord = coord_array[:,1]
-        z_coord = coord_array[:,2]
-
-        fig = plt.figure()
-        ax = fig.gca(projection=Axes3D.name)
-        ax.set_title('M2PCS Print Visualization')
-        ax.set_xlim3d(0, 205)
-        ax.set_ylim3d(0, 255)
-        ax.set_zlim3d(0, 205)
-        ax.set_xlabel('X [mm]')
-        ax.set_ylabel('Y [mm]')
-        ax.set_zlabel('Z [mm]')
-        ax.plot(x_coord, y_coord, z_coord, color = 'g', linewidth = 1.0, label = 'toolhead')
-        ax.legend()
-        plt.show()
 
     # GCode wrappers
     # G0/G1
@@ -89,24 +53,116 @@ class Makergear:
         """
         Moves to the specified point, keeping in mind the coordinate system (relative / absolute)
         """
-        if self.printout == 1:
-            self.handle.write(str.encode('G1 X{} Y{} Z{}\n'.format(x, y, z)))
-            read = self.handle.readline()
-            while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
+        try:
+            if self.current_coord_sys == 'abs':
+                self.coords = np.array([x, y, z])
+            elif self.current_coord_sys == 'rel':
+                self.coords = self.coords + np.array([x, y, z])
+
+            if self.printout == 1:
+                self.handle.write(str.encode('G1 X{} Y{} Z{}\n'.format(x, y, z)))
                 read = self.handle.readline()
-                time.sleep(0.06)
-            print('Move to ({}, {}, {})'.format(x, y, z))
-            while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
-                read = self.handle.readline()
-                time.sleep(0.06)
+                while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
+                    read = self.handle.readline()
+                    time.sleep(0.06)
+                if self.verbose: print('Moving to ({}, {}, {})'.format(x, y, z))
+                while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
+                    read = self.handle.readline()
+                    time.sleep(0.06)
 
-        elif self.printout == 0 and track == 1:
-            self.handle.write('{} {} {}\n'.format(x, y, z))
+            elif self.printout == 0 and track == 1:
+                self.handle.write('{} {} {} {} {} {}\n'.format(x, y, z, self.channel_status[0], self.channel_status[1], self.channel_status[2]))
+        except:
+            self.handle.write(str.encode('M112\n'))
+            self.close()
+            raise ValueError('Emergency Stop! Turning off channels and disconnecting from {}'.format(self.com))
+    
+    # G2/G3
+    def arc(self, x = 0, y = 0, i = 0, j = 0, direction = 'ccw'):
+        r = np.sqrt((x - i)**2 + (y - j)**2)
+        start_ang = np.angle(i*-1 + j*-1j)
+        stop_ang = np.angle((x-i)*1 + (y-j)*1j)
+        
+        if start_ang < 0:
+            start_ang = start_ang + 2*np.pi
+            if stop_ang > 0:    
+                stop_ang = stop_ang + 2*np.pi
+                
+        if stop_ang < 0:
+            stop_ang = stop_ang + 2*np.pi
 
+        if direction == 'ccw':
+            if stop_ang > start_ang:
+                dtheta = (stop_ang - start_ang) 
+                s = int(np.ceil((r*dtheta)))
+                theta = np.linspace(start_ang, stop_ang, s)
+            elif start_ang > stop_ang:
+                stop_ang = stop_ang + 2*np.pi
+                dtheta = (stop_ang - start_ang) 
+                s = int(np.ceil((r*dtheta)))
+                theta = np.linspace(start_ang, stop_ang, s)
+            elif start_ang == stop_ang:
+                stop_ang = stop_ang + 2*np.pi
+                dtheta = (stop_ang - start_ang) 
+                s = int(np.ceil((r*dtheta)))
+                theta = np.linspace(start_ang, stop_ang, s)
+            
+        elif direction == 'cw':
+            if stop_ang > start_ang:
+                dtheta = 2*np.pi - (stop_ang - start_ang)
+                s = int(np.ceil((r*dtheta)))
+                theta = np.flip(np.linspace(stop_ang, start_ang + 2*np.pi, s), axis = 0)
+            elif start_ang > stop_ang:
+                dtheta = (start_ang - stop_ang)
+                s = int(np.ceil((r*dtheta)))
+                theta = np.flip(np.linspace(stop_ang, start_ang, s), axis = 0)
+            elif start_ang == stop_ang:
+                stop_ang = stop_ang + 2*np.pi
+                dtheta = (stop_ang - start_ang) 
+                s = int(np.ceil((r*dtheta)))
+                theta = np.flip(np.linspace(start_ang, stop_ang, s), axis = 0)
+           
+        xpts = r*np.cos(theta)
+        ypts = r*np.sin(theta)
 
-    def speed(self, speed = 30):
+        dxpts = np.array([])
+        dypts = np.array([])
+
+        for ii in range(s - 1):
+            dxpts = np.append(dxpts, xpts[ii+1] - xpts[ii])
+            dypts = np.append(dypts, ypts[ii+1] - ypts[ii])
+
+        if self.current_coord_sys == 'abs':
+            current_coords = self.return_current_coords()
+            dxpts = dxpts + current_coords[0]
+            dypts = dypts + current_coords[1]
+            zpt = current_coords[2]
+            if self.printout == 1:
+                for jj in range(s-1):
+                    old_verbose = self.verbose
+                    self.verbose = False
+                    self.move(x = dxpts[jj], y = dypts[jj], z = zpt)
+                    self.verbose = old_verbose
+                if self.verbose: print('Moving in a {} arc to ({},{}) with center ({},{})'.format(direction, x,y,i,j))
+            elif self.printout == 0:
+                for jj in range(s-1):
+                    self.handle.write('{} {} {} {} {} {}\n'.format(dxpts[jj], dypts[jj], zpt, self.channel_status[0], self.channel_status[1], self.channel_status[2]))
+
+        elif self.current_coord_sys == 'rel':
+            if self.printout == 1:
+                for jj in range(s-1):
+                    old_verbose = self.verbose
+                    self.verbose = False
+                    self.move(x = dxpts[jj], y = dypts[jj], z = 0)
+                    self.verbose = old_verbose
+                if self.verbose: print('Moving in a {} arc to ({},{}) with center ({},{})'.format(direction, x,y,i,j))
+            elif self.printout == 0:
+                for jj in range(s-1):
+                    self.handle.write('{} {} {} {} {} {}\n'.format(dxpts[jj], dypts[jj], 0, self.channel_status[0], self.channel_status[1], self.channel_status[2]))
+
+    def speed(self, speed = 0):
         """
-        Sets the movement speed of the printer to the specified speed in [mm/s] (default 30 mm/sec)
+        Sets the movement speed of the printer to the specified speed in [mm/s] (default 0 mm/sec)
         """
         if self.printout == 1:
             self.handle.write(str.encode('G1 F{}\n'.format(speed*60)))
@@ -114,11 +170,11 @@ class Makergear:
             while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
                 read = self.handle.readline()
                 time.sleep(0.06)
-            print('Changing movement speed to {} mm/s'.format(speed))
+            if self.verbose: print('Setting movement speed to {} mm/s'.format(speed))
 
-    def rotate(self, speed = 20):
+    def rotate(self, speed = 0):
             """
-            Sets the rotation speed of the motor to the specified speed [0-127] (default 20)
+            Sets the rotation speed of the motor to the specified speed [0-127] (default 0)
             """
             if self.printout == 1:
                 self.handle.write(str.encode('M9 S{}\n'.format(int(speed))))
@@ -126,11 +182,11 @@ class Makergear:
                 while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
                     read = self.handle.readline()
                     time.sleep(0.06)
-                print('Changing rotation speed to {}'.format(int(speed)))
+                if self.verbose: print('Setting rotation speed to {}'.format(int(speed)))
 
     def ramp(self, start = 0, stop = 0, seconds = 1):
             """
-            Sets the rotation speed of the motor to the specified speed [0-127] (default 20)
+            Sets the rotation speed of the motor to the specified speed [0-127] (default 0 --> 0)
             """
             if self.printout == 1:
                 diff = stop - start
@@ -151,39 +207,15 @@ class Makergear:
                             while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
                                 read = self.handle.readline()
                                 time.sleep(0.06)
-                        
-                        
+
+
                         self.handle.write(str.encode('G4 S{}\n'.format(dt)))
                         read = self.handle.readline()
                         while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
                                 read = self.handle.readline()
                                 time.sleep(0.06)
-                                
-                print('Changing rotation from {} to {} in {} seconds'.format(int(start),int(stop), seconds))
 
-    # G2/G3
-    def arc(self, x = 0, y = 0, z = 0, i = 0, j = 0, direction = 'ccw'):
-        """
-        Moves to the specified x-y point, with the i-j point as the center of the arc, with direction specified as 'cw' or 'ccw' (default 'ccw')
-        """
-        if self.printout == 1:
-            if direction == 'ccw':
-                self.handle.write(str.encode('G3 X{} Y{} Z{} I{} J{}\n'.format(x, y, z, i, j)))
-                read = self.handle.readline()
-                while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
-                    read = self.handle.readline()
-                    time.sleep(0.06)
-                print('CCW arc to ({}, {}, {}), center at ({}, {})'.format(x, y, z, i, j))
-            elif direction == 'cw':
-                self.handle.write(str.encode('G2 X{} Y{} Z{} I{} J{}\n'.format(x, y, z, i, j)))
-                read = self.handle.readline()
-                while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
-                    read = self.handle.readline()
-                    time.sleep(0.06)
-                print('CW arc to ({}, {}, {}), center at ({}, {})'.format(x, y, z, i, j))
-
-        elif self.printout == 0:
-            self.handle.write('{} {} {}\n'.format(x, y, z))
+                if self.verbose: print('Changing rotation from {} to {} in {} seconds'.format(int(start),int(stop), seconds))
 
     # G4
     def wait(self, seconds = 0):
@@ -196,64 +228,83 @@ class Makergear:
             while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
                     read = self.handle.readline()
                     time.sleep(0.06)
-            print('Waiting for {} seconds'.format(seconds))
+            if self.verbose: print('Waiting for {} seconds'.format(seconds))
 
     # G28
     def home(self, axes = 'X Y Z'):
         """
         Homes the specified axes (default 'X Y Z')
         """
+        split_axes = axes.split(' ')
+        for i in range(len(split_axes)):
+            if split_axes[i] == 'X':
+                self.coords[0] = 0
+            elif split_axes[i] == 'Y':
+                self.coords[1] = 0
+            elif split_axes[i] == 'Z':
+                self.coords[2] = 0
+
         if self.printout == 1:
             self.handle.write(str.encode('G28 {}\n'.format(axes)))
             read = self.handle.readline()
             while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
                     read = self.handle.readline()
                     time.sleep(0.06)
-            print('{} axes homed'.format(axes))
+            if self.verbose: print('Homing {} axes'.format(axes))
 
     # G90/G91
-    def coord(self, coord_sys = 'abs'):
+    def coord_sys(self, coord_sys = 'abs'):
         """
         Sets the coordinate system of the printer [relative or absolute] (default 'abs')
         """
-        self.coord_sys = coord_sys
+        self.current_coord_sys = coord_sys
 
         if self.printout == 1:
-            if self.coord_sys == 'abs':
+            if self.current_coord_sys == 'abs':
                 self.handle.write(str.encode('G90\n'))
                 read = self.handle.readline()
                 while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
                     read = self.handle.readline()
                     time.sleep(0.06)
-                print('Set to absolute coordinates')
+                if self.verbose: print('Setting to absolute coordinates')
 
-            elif self.coord_sys == 'rel':
+            elif self.current_coord_sys == 'rel':
                 self.handle.write(str.encode('G91\n'))
                 read = self.handle.readline()
                 while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
                     read = self.handle.readline()
                     time.sleep(0.06)
-                print('Set to relative coordinates')
+                if self.verbose: print('Setting to relative coordinates')
 
     # G92
-    def set_coords(self, x = 0, y = 0, z = 0):
+    def set_current_coords(self, x = 0, y = 0, z = 0):
         """
         Sets the current position to the specified (x, y, z) point (keeping in mind the current coordinate system)
         """
+        old_coords = self.coords
+        self.coords = [x, y, z]
+
         if self.printout == 1:
             self.handle.write(str.encode('G92 X{} Y{} Z{}\n'.format(x, y, z)))
             read = self.handle.readline()
             while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
                 read = self.handle.readline()
                 time.sleep(0.06)
-            print('Changed current position to ({}, {}, {})'.format(x, y, z))
+                if self.verbose: print('Changing current position at ({}, {}, {}) to ({}, {}, {})'.format(old_coords[0], old_coords[1], old_coords[2], x, y, z))
 
-    # CORE SHELL SPECIFIC FUNCTIONS
+    def return_current_coords(self):
+        """
+        Returns the current stored coordinates of the Makergear object
+        """
+        if self.verbose: print('Current position: ({}, {}, {})'.format(self.coords[0], self.coords[1], self.coords[2]))
+        return self.coords
+
+    # M2PCS SPECIFIC FUNCTIONS
     def allon(self):
         """
         Turns pneumatic CHANNEL 1, 2, 3 ON
         """
-        if self.printout == 1:
+        if self.prinout == 1:
             self.handle.write(str.encode('M3\n'))
             read = self.handle.readline()
             while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
@@ -269,7 +320,9 @@ class Makergear:
             while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
                 read = self.handle.readline()
                 time.sleep(0.06)
-            print('All Channels ON')
+            if self.verbose: print('Turning all channels on')
+        elif self.printout == 0:
+            self.channel_status = np.array([1,1,1])
 
     def alloff(self):
         """
@@ -291,7 +344,9 @@ class Makergear:
             while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
                 read = self.handle.readline()
                 time.sleep(0.06)
-            print('All Channels OFF')
+            if self.verbose: print('Turning all channels off')
+        elif self.printout == 0:
+            self.channel_status = np.array([0,0,0])
 
     # M3/M5/M7
     def on(self, channel):
@@ -299,18 +354,15 @@ class Makergear:
         Turns pneumatic CHANNEL ON
         """
         if self.printout == 1:
-            if channel == 1:
-                schannel = 'M3\n'
-            elif channel == 2:
-                schannel = 'M5\n'
-            elif channel == 3:
-                schannel = 'M7\n'
+            schannel = 'M{}\n'.format(channel*2 + 1)
             self.handle.write(str.encode(schannel))
             read = self.handle.readline()
             while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
                 read = self.handle.readline()
                 time.sleep(0.06)
-            print('Channel {} ON'.format(channel))
+            if self.verbose: print('Turning on channel {}'.format(channel))
+        elif self.printout == 0:
+            self.channel_status[channel - 1] = 1
 
     # M4/M6/M8
     def off(self, channel):
@@ -318,20 +370,17 @@ class Makergear:
         Turns pneumatic CHANNEL OFF
         """
         if self.printout == 1:
-            if channel == 1:
-                schannel = 'M4\n'
-            elif channel == 2:
-                schannel = 'M6\n'
-            elif channel == 3:
-                schannel = 'M8\n'
+            schannel = 'M{}\n'.format(channel*2 + 2)
             self.handle.write(str.encode(schannel))
             read = self.handle.readline()
             while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
                 read = self.handle.readline()
                 time.sleep(0.06)
-            print('Channel {} OFF'.format(channel))
+            if self.verbose: print('Turning off channel {}'.format(channel))
+        elif self.printout == 0:
+            self.channel_status[channel - 1] = 0
 
-    def delay_set(self, delay = 50):
+    def set_channel_delay(self, delay = 50):
         """
         Sets the delay time (in ms) between a channel turning on and the execution of another command. Can be used to fine tune under extrusion effects, depending on ink viscosity.
         """
@@ -341,27 +390,132 @@ class Makergear:
             while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
                 read = self.handle.readline()
                 time.sleep(0.06)
-            print('Channel ON delay time changed to {} ms'.format(delay))
+            if self.verbose: print('Setting channel delay to {} ms'.format(delay))
 
-    def clip(self, clip_height = 1, radius = 0.5):
+    def set_tool_coords(self, tool = 1, x = 0, y = 0, z = 0):
         """
-        This subroutine automatically turns off all channels, and performs a quick arc/z-translation to shear excess material away from nozzle before continuing with print path.
+        Sets internally stored coordinates of each tool, used in switching commands
         """
-        if self.printout == 1:
-            self.alloff(self.handle)
-            self.arc(self.handle, z = clip_height, i = radius)
-            print('Print clipped')
+        self.tool_coords[tool - 1] = [x, y, z]
+        if self.verbose: print('Setting coordinates of tool {} to ({},{},{})'.format(tool, x, y, z))
 
-    def change_tool(self, dx = 0, dy = 0, change_height = 10):
+
+    def change_tool(self, change_to = 1):
         """
         This subroutine automatically turns off all channels, and performs a predetermined z translation of z = change_height, and then moves (x,y) = (dx, dy) to allow for change between multiple nozzles. It also automatically lowers back to the z height it was at previously, continuing printing after switching active tools
         """
         if self.printout == 1:
+            old_tool = self.current_tool
             self.alloff()
-            self.move(z = change_height, track = 0)
-            self.move(x = dx, y = dy, track = 0)
-            self.move(z = -change_height, track = 0)
-            print('Tool change to ({}, {})'.format(dx, dy))
+            old_coord_sys = self.current_coord_sys
+            old_coords = self.coords
+            self.coord_sys(coord_sys = 'rel')
+            coord_change = self.tool_coords[change_to - 1] - self.tool_coords[self.current_tool - 1]
+            self.move(x = coord_change[0], y = coord_change[1], z = coord_change[2])
+            self.current_tool = change_to
+            self.coord_sys(coord_sys = old_coord_sys)
+            self.set_current_coords(x = old_coords[0], y = old_coords[1], z = old_coords[2])
+
+            if self.verbose: print('Changing from tool {} to tool {}'.format(old_tool, change_to))
+
+    def path_vis(self):
+        """
+        Takes the (x, y, z) coordinates generated from mp.mopen(printout = 0), and plots them into a 3D line graph to check a print path before actually sending commands to the Makergear. Visualization function will use whatever coordinate system you explicity designate using coord. If coord isn't explicitly called, the coordinate system used by the visualization tool will be absolute. When using path_vis, the file directory of the path coordinates needs to be explicity set, unlike when it is implictly called inside mclose.
+        """
+        coord_array = np.zeros([1, 3])
+        channel_array = np.zeros([1, 3])
+
+        if self.current_coord_sys == 'abs':
+            with open(self.fid, "r") as data:
+                for line in data:
+                    raw = line.split(' ')
+                    coords = [float(raw[0]), float(raw[1]), float(raw[2])]
+                    channels = [float(raw[3]), float(raw[4]), float(raw[5])]
+                    coord_array = np.append(coord_array, [coords[0], coords[1], coords[2]])
+                    channel_array = np.append(channel_array, [channels[0], channels[1], channels[2]])
+            coord_array.shape = (int(len(coord_array)/3), 3)
+
+        elif self.current_coord_sys == 'rel':
+            old_coords = [0,0,0]
+            with open(self.fid, "r") as data:
+                for line in data:
+                    raw = line.split(' ')
+                    coords = [float(raw[0]), float(raw[1]), float(raw[2])]
+                    channels = [float(raw[3]), float(raw[4]), float(raw[5])]
+                    coord_array = np.append(coord_array, [coords[0] + old_coords[0], coords[1] + old_coords[1], coords[2] + old_coords[2]])
+                    old_coords =  [coords[0] + old_coords[0], coords[1] + old_coords[1], coords[2] + old_coords[2]]
+                    channel_array = np.append(channel_array, [channels[0], channels[1], channels[2]])
+            coord_array.shape = (int(len(coord_array)/3), 3)
+
+        channel_array.shape = (int(len(channel_array)/3), 3)
+        num_moves = channel_array.shape[0]
+
+        ch_split_index = np.array([])
+        for i in range(num_moves-1):
+            if np.array_equal(channel_array[i,:], channel_array[i+1,:]) == False:
+                ch_split_index = np.append(ch_split_index, i+1)
+
+        x_coord = coord_array[:,0]
+        y_coord = coord_array[:,1]
+        z_coord = coord_array[:,2]
+        ch_split_index = ch_split_index.astype(int)
+        
+        start_pt = [x_coord[0], y_coord[0], z_coord[0]]
+        end_pt = [x_coord[-1], y_coord[-1], z_coord[-1]]
+
+        x_split = np.split(x_coord, ch_split_index)
+        y_split = np.split(y_coord, ch_split_index)
+        z_split = np.split(z_coord, ch_split_index)
+        ch_split = np.split(channel_array, ch_split_index)
+        num_lines = len(x_split)
+
+        for j in range(num_lines - 1):
+            x_split[j+1] = np.insert(x_split[j+1], 0, x_split[j][-1])
+            y_split[j+1] = np.insert(y_split[j+1], 0, y_split[j][-1])
+            z_split[j+1] = np.insert(z_split[j+1], 0, z_split[j][-1])
+
+        xmin = np.min(x_coord)
+        xmax = np.max(x_coord)
+        ymin = np.min(y_coord)
+        ymax = np.max(y_coord)
+        
+        xymax = (xmax>=ymax)*xmax + (ymax>xmax)*ymax
+        xymin = (xmin<=ymin)*ymin + (ymin<xmin)*ymin
+
+        fig = plt.figure()
+        ax = fig.gca(projection=Axes3D.name)
+        ax.set_xlim3d(xymin, xymax)
+        ax.set_ylim3d(xymin, xymax)
+        ax.set_zlim3d(0, 203)
+        ax.set_xlabel('X axis [mm]')
+        ax.set_ylabel('Y axis [mm]')
+        ax.set_zlabel('Z axis [mm]')
+
+        for k in range(num_lines):
+
+            if np.array_equal(ch_split[k][0], [0, 0, 0]):
+                cstr = '#484848'
+                linestyle = ':'
+            elif np.array_equal(ch_split[k][0], [1, 0, 0]):
+                cstr = '#0000ff'
+                linestyle = '-'
+            elif np.array_equal(ch_split[k][0], [0, 1, 0]):
+                cstr = '#00ff00'
+                linestyle = '-'
+            elif np.array_equal(ch_split[k][0], [0, 0, 1]):
+                cstr = '#ff0000'
+                linestyle = '-'
+            ax.plot(x_split[k], y_split[k], z_split[k], color = cstr, linewidth = 2, linestyle = linestyle)
+
+        ch1_patch = patches.Patch(color='#0000ff', label='Channel 1')
+        ch2_patch = patches.Patch(color='#00ff00', label='Channel 2')
+        ch3_patch = patches.Patch(color='#ff0000', label='Channel 3')
+        ax.scatter(start_pt[0], start_pt[1], start_pt[2], c='#7E7C66', marker='o')
+        ax.scatter(end_pt[0], end_pt[1], end_pt[2], c='k', marker='o')
+        plt.legend(handles=[ch1_patch, ch2_patch, ch3_patch], loc = 'best')
+        plt.title('M2PCS Print Path Visualization')
+        plt.show()
+        if self.verbose: print('Generating path visualization')
 
 #Additional functions outside of the M2 CLASS
 def prompt(com, baud):
@@ -378,7 +532,7 @@ def prompt(com, baud):
     x = y = z = 0
     xval = yval = zval = 0
     while escape == 0:
-        cmd = raw_input('>> ')
+        cmd = input('>> ')
         if cmd == 'exit':
             handle.close()
             print("Serial port disconnected")
@@ -428,90 +582,3 @@ def file_read(fid, com, baud):
 
     print('Print complete!\nSerial port closed')
     handle.close() #Closes serial port
-
-def infill_generator(xcoords, ycoords, fill_angle, line_spacing):
-    # Infill Generation 
-    theta = fill_angle
-    xcr = np.zeros(0)
-    ycr = np.zeros(0)
-    pts_inv = np.zeros(0)
-    xmax0 = np.max(xcoords)
-    ymax0 = np.max(ycoords)
-    xmin0 = np.min(xcoords)
-    ymin0 = np.min(ycoords)
-    xcnt = (xmax0 + xmin0)/2
-    ycnt = (ymax0 + ymin0)/2
-    xl = np.array([xmin0])
-    yl = np.array([ymin0])
-    dyl = line_spacing
-    
-    xcoords = xcoords - xcnt
-    ycoords = ycoords - ycnt
-    
-    curve_pts = np.column_stack((xcoords,ycoords))
-    R = np.array([[np.cos(theta*(np.pi/180)), -np.sin(theta*(np.pi/180))],[np.sin(theta*(np.pi/180)), np.cos(theta*(np.pi/180))]])
-    Rpts = np.zeros(0)
-    
-    for coords in curve_pts:
-        Rpts = np.append(Rpts, np.matmul(R, np.transpose(coords)))
-    Rpts = np.reshape(Rpts, (int(len(curve_pts)), 2))
-
-    xtr = Rpts[:,0]
-    ytr = Rpts[:,1]
-    xmax = np.max(xtr)
-    ymax = np.max(ytr)
-    xmin = np.min(xtr)
-    #ymin = np.min(ytr)
-    
-    while yl[-1] < ymax:
-        while xl[-1] < xmax:
-            xl = np.append(xl, xl[-1] + np.cos(theta*(np.pi/180)))
-            yl = np.append(yl, yl[-1] + np.sin(theta*(np.pi/180)))
-        xl = np.array([xmin])
-        yl = np.array([yl[0] + dyl])
-        yl0 = yl[0]
-        zc = np.where(np.diff(np.sign(ytr-yl)))
-        xcr = np.append(xcr, np.take(xtr, zc))
-        ycr = np.append(ycr, yl0*np.ones(len(zc[0])))
-    
-    pts = np.column_stack((xcr,ycr))
-    
-    for i in range(0, int(len(pts)), 4):
-        if (i != len(pts) - len(pts)%4):
-            pts_inv = np.append(pts_inv, pts[i])
-            pts_inv = np.append(pts_inv, pts[i+1])
-            pts_inv = np.append(pts_inv, pts[i+3])
-            pts_inv = np.append(pts_inv, pts[i+2])
-        elif len(pts)%4 == 0:
-            pts_inv = np.append(pts_inv, pts[i])
-            pts_inv = np.append(pts_inv, pts[i+1])
-            pts_inv = np.append(pts_inv, pts[i+3])
-            pts_inv = np.append(pts_inv, pts[i+2])    
-        elif len(pts)%4 == 1:
-            pts_inv = np.append(pts_inv, pts[i])
-        elif len(pts)%4 == 2:
-            pts_inv = np.append(pts_inv, pts[i])
-            pts_inv = np.append(pts_inv, pts[i+1])
-        elif len(pts)%4 == 3:
-            pts_inv = np.append(pts_inv, pts[i])
-            pts_inv = np.append(pts_inv, pts[i+1])
-            pts_inv = np.append(pts_inv, pts[i+2])
-
-    pts = np.reshape(pts_inv, (int(len(pts)), 2))
-    curve_pts = np.column_stack((xtr,ytr))
-    
-    Rinv = np.array([[np.cos(-theta*(np.pi/180)), -np.sin(-theta*(np.pi/180))],[np.sin(-theta*(np.pi/180)), np.cos(-theta*(np.pi/180))]])
-    Rinvpts = np.zeros(0)
-    Epts = np.zeros(0)
-    
-    for coords in curve_pts:
-        Rinvpts = np.append(Rinvpts, np.matmul(Rinv, np.transpose(coords)))
-    Rinvpts = np.reshape(Rinvpts, (int(len(curve_pts)), 2))
-    
-    for coords in pts:
-        Epts = np.append(Epts, np.matmul(Rinv, np.transpose(coords)))
-    Epts = np.reshape(Epts, (int(len(pts_inv)/2), 2))
-    
-    plt.plot(Rinvpts[:,0], Rinvpts[:,1])
-    plt.plot(Epts[:,0], Epts[:,1])
-    plt.axis('scaled') 
