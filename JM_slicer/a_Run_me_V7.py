@@ -14,10 +14,10 @@ def ucopy(inList):
 '''
 Slice the stl file into layers and extract lines as polygons.
 '''
-file = 'Beats30x30x10.stl' # Beats30x30x10   Country30x20x10   HolePlate50x20x10   Square30x30x10
+file = 'size3_body.stl' # Beats30x30x10   Country30x20x10   HolePlate50x20x10   Square30x30x10
 subdir_models = "models"
 subdir_output = "output"
-layer_thickness = 6
+layer_thickness = 0.4
 width = 20      # X
 height = 20     # Y
 scale = True # True means that the part is NOT being scaled
@@ -27,9 +27,13 @@ verbose = False
 quiet = False
 
 paths_all = command_line(file, subdir_models, subdir_output, layer_thickness, width, height, scale, svg2, dxf, verbose, quiet)
+
+num_layers = 
+
+paths_all = [paths_all[2]]
     
 # TSP settings
-linespace = 1 # mm
+linespace = 2 # mm
 depot = 0 # == starting point
 
 # Line search options
@@ -43,10 +47,10 @@ gcode_rel = True    # True: relative coordinates, False: absolute
 
 importance_init_dist = 1   # 0: all initial distances are equal, 1: actual initial distances, >1: increased effect. Switch completely off to show how the FDM process path would look like (lots of jumps - start/stops). Increase this value if "jumps" over large distances are discovered.
 dir_neighbor = 8      # Direct (hor/ver) neighbours. Multiplies all but the direct distances.
-indir_neighbor = 2      # Indirect (diagonal) neighbours. Multiplies all but the direct and indirect distances.
+indir_neighbor = 8      # Indirect (diagonal) neighbours. Multiplies all but the direct and indirect distances.
 cont_multiplier = 2     # multiplies each distance that is NOT a contour
-hor_multiplier = 8     # multiplies each distance that is NOT horizontal
-ver_multiplier = 1    # 1 multiplies each distance that is NOT vertical
+hor_multiplier = 2     # multiplies each distance that is NOT horizontal
+ver_multiplier = 2    # 1 multiplies each distance that is NOT vertical
 deleteallbut = 0   # 2 Delete all nodes but none (0), 2, 3, 4, or 5 near the edges. Only works with a high hor_multiplier
 shortendeldist = 10000000   # Decrease distance of the nodes to the left and right of deleted nodes to each other by x/factor. This factor is important when inner nodes away from the contour are selected.
 

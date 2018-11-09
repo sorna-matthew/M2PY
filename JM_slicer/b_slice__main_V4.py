@@ -255,7 +255,7 @@ def command_line(file, subdir_models, subdir_output, thickness, width, height, s
     writer.finish()
 #    print paths_all
     
-    del paths_all[-1]
+    del paths_all[0]
     
     return paths_all
 
