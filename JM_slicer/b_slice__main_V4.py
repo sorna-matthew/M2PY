@@ -188,7 +188,7 @@ def scale_to_fit(facets, width, height, scale):
                                (z - minz) * scale)
                               for x, y, z in facet])
         logger.debug('Scaled %r to %r', facet, scaled_facets[-1])
-    return width, height, 0, (maxz - minz) * scale, scaled_facets
+    return xsize, ysize, width, height, 0, (maxz - minz) * scale, scaled_facets
 
 
 def z_sort_facets(facets):
@@ -212,10 +212,10 @@ def command_line(file, subdir_models, subdir_output, thickness, width, height, s
     
     logger.info('Read %d facets from %s' % (len(facets), file))
     if scale:
-        width, height, minz, maxz, facets = scale_to_fit(facets, 0, 0,
+        xsize, ysize, width, height, minz, maxz, facets = scale_to_fit(facets, 0, 0,
                                                          scale)
     else:
-        width, height, minz, maxz, facets = scale_to_fit(facets, width,
+        xsize, ysize, width, height, minz, maxz, facets = scale_to_fit(facets, width,
                                                          height, scale)
     maxz_facets = z_sort_facets(facets)
 
@@ -257,7 +257,7 @@ def command_line(file, subdir_models, subdir_output, thickness, width, height, s
     
     del paths_all[0]
     
-    return paths_all
+    return xsize, ysize, paths_all
 
 if __name__ == '__main__':
     command_line(file, thickness, width, height, scale, svg2, dxf, verbose, quiet)
