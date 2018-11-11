@@ -1,12 +1,12 @@
-def generate_gcode(DX, DY, channel, route_xy, dz, layer_thickness, gcode_rel, subdir_output, curr_layer, file):
+def generate_gcode(route_xy, channel, switch, dx, dy, dz, layer_thickness, gcode_rel, subdir_output, curr_layer, file):
     if gcode_rel: # relative coordinates
         gcode = []
         gcode.append('G91')
-    
+        if switch: gcode.append('T1')
         for idxi, i in enumerate(route_xy):
             for idxii, ii in enumerate(i):
                 if idxii == 0:
-                    gcode.append('G1 X' + str(DX) + ' Y' + str(DY))
+                    gcode.append('G1 X' + str(dx) + ' Y' + str(dy))
                     gcode.append('G1 X' + str(route_xy[0][0][0]) + ' Y' + str(route_xy[0][0][2]))
                     gcode.append('M{}'.format(channel*2 + 1))
                     gcode.append('G1 X' + str(ii[1]-ii[0]) + ' Y' + str(ii[3]-ii[2]))
@@ -27,7 +27,8 @@ def generate_gcode(DX, DY, channel, route_xy, dz, layer_thickness, gcode_rel, su
     gcode.append('M{}'.format(channel*2 + 2))
     gcode.append('G1 X-' + str(route_xy[0][-1][1]) + ' Y-' + str(route_xy[0][-1][3]))
     gcode.append('G1 Z' + str(dz))
-    gcode.append('G1 X' + str(-DX) + ' Y' + str(-DY))
+    gcode.append('G1 X' + str(-dx) + ' Y' + str(-dy))
+    if switch: gcode.append('T0')
     import os
     f=open(os.path.splitext(os.path.dirname(os.path.realpath(__file__)) + "\\" + subdir_output +"\\"  + os.path.basename(file))[0] + '_' + str(curr_layer) + '.cnc','w') 
     for i in gcode: 

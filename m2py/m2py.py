@@ -557,7 +557,7 @@ def prompt(com, baud):
                     z = z + zval
             print('Currently at ({}, {}, {})'.format(x, y, z))
 
-def file_read(fid, com, baud):
+def file_read(fid, com, baud, dx, dy):
     """
     Reads in a text file of GCode line by line, and waits for the M2 to acknowledge that it received the command before sending another, maintaining print accuracy.
     """
@@ -573,12 +573,26 @@ def file_read(fid, com, baud):
         for line in gcode:
             split_line = line.split(';') # chops off comments
             if split_line[0] != '':      # makes sure it's not a comment-only line of GCode
-                handle.write(str.encode('{}\n'.format(split_line[0]))) #Reads in text file (GCode) line by line and sends commands to M2
-                print(split_line[0])
-                read = handle.readline()
-                if split_line[0][0] != 'M':
-                    while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
+                if split_line[0][0] == 'T':
+                    if split_line[0] == 'T0':
+                        handle.write(str.encode('G1 X{} + Y{}\n'.format(-dx, -dy))) #Reads in text file (GCode) line by line and sends commands to M2
+                        print(split_line[0])
                         read = handle.readline()
+                        while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
+                            read = handle.readline()
+                    if split_line[0] == 'T1':
+                        handle.write(str.encode('G1 X{} + Y{}\n'.format(dx, dy))) #Reads in text file (GCode) line by line and sends commands to M2
+                        print(split_line[0])
+                        read = handle.readline()
+                        while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
+                            read = handle.readline()
+                else:
+                    handle.write(str.encode('{}\n'.format(split_line[0]))) #Reads in text file (GCode) line by line and sends commands to M2
+                    print(split_line[0])
+                    read = handle.readline()
+                    if split_line[0][0] != 'M':
+                        while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
+                            read = handle.readline()
 
     time.sleep(2)
     print('Print complete!\nSerial port closed')

@@ -457,7 +457,7 @@ for curr_layer in range(num_layers):
     if curr_layer < num_layers_s:
         mk.move(x = (xsize_b - xsize_s), y = (ysize_b - ysize_s))
         channel = 1
-        gcode = generate_gcode(0, 0, channel, route_xy, 0, layer_thickness, gcode_rel, subdir_output, curr_layer, file)
+        gcode = generate_gcode(route_xy, channel, False, 0, 0, dz, layer_thickness, gcode_rel, subdir_output, curr_layer, file)
         channel = 2
         
         layer_path = [paths_all_s[curr_layer]]
@@ -831,7 +831,7 @@ for curr_layer in range(num_layers):
         # from c_cost import calculate_cost
         # actual_cost = calculate_cost(route_xy)
         
-        gcode = generate_gcode((xsize_b - xsize_s), (ysize_b - ysize_s), channel, route_xy, dz, layer_thickness, gcode_rel, subdir_output, curr_layer, file2)
+        gcode = generate_gcode(route_xy, channel, True, (xsize_b - xsize_s), (ysize_b - ysize_s), dz, layer_thickness, gcode_rel, subdir_output, curr_layer, file2)
     
         xi = route_xy[0][0][0]
         yi = route_xy[0][0][2]      
@@ -851,7 +851,7 @@ for curr_layer in range(num_layers):
         mk.move(x = -(xsize_b - xsize_s), y = -(ysize_b - ysize_s))
     else:
         channel = 1
-        gcode = generate_gcode(0, 0, channel, route_xy, dz, layer_thickness, gcode_rel, subdir_output, curr_layer, file)
+        gcode = generate_gcode(route_xy, channel, False, 0, 0, dz, layer_thickness, gcode_rel, subdir_output, curr_layer, file)
         mk.move(z = dz)
     
 mk.close()
