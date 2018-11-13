@@ -6,7 +6,7 @@ def generate_gcode(route_xy, channel, switch, dx, dy, dz, layer_thickness, gcode
         for idxi, i in enumerate(route_xy):
             for idxii, ii in enumerate(i):
                 if idxii == 0:
-                    gcode.append('G1 X' + str(dx) + ' Y' + str(dy))
+                    gcode.append('G1 X' + str(dx) + ' Y' + str(dy) + ' Z0')
                     gcode.append('G1 X' + str(route_xy[0][0][0]) + ' Y' + str(route_xy[0][0][2]))
                     gcode.append('M{}'.format(channel*2 + 1))
                     gcode.append('G1 X' + str(ii[1]-ii[0]) + ' Y' + str(ii[3]-ii[2]))

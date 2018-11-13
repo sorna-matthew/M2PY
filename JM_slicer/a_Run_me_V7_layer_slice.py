@@ -19,13 +19,13 @@ mk.home(axes = 'X Y Z')
 mk.move(x = 25, y = 40, z = -82.7, track = 0)
 mk.set_current_coords(x = 0, y = 0, z = 0)
 dz = 0.4*0.85 # mm
-linespace = 0.5 # mm
+linespace = 0.4 # mm
 
 '''
 BODY SLICING
 '''
-file = 'Size3_body.stl' # Beats30x30x10   Country30x20x10   HolePlate50x20x10   Square30x30x10
-file2 = 'Size3_support.stl' # Beats30x30x10   Country30x20x10   HolePlate50x20x10   Square30x30x10
+file = 'Size3_body2.stl' # Beats30x30x10   Country30x20x10   HolePlate50x20x10   Square30x30x10
+file2 = 'Size3_support2.stl' # Beats30x30x10   Country30x20x10   HolePlate50x20x10   Square30x30x10
 subdir_models = "models"
 subdir_output = "output"
 layer_thickness = dz
@@ -455,9 +455,9 @@ for curr_layer in range(num_layers):
     
     num_layers_s = len(paths_all_s)
     if curr_layer < num_layers_s:
-        mk.move(x = (xsize_b - xsize_s), y = (ysize_b - ysize_s))
+        mk.move(x = (xsize_b - xsize_s)/2, y = (ysize_b - ysize_s)/2)
         channel = 1
-        gcode = generate_gcode(route_xy, channel, False, 0, 0, dz, layer_thickness, gcode_rel, subdir_output, curr_layer, file)
+        gcode = generate_gcode(route_xy, channel, False, 0, 0, 0, layer_thickness, gcode_rel, subdir_output, curr_layer, file)
         channel = 2
         
         layer_path = [paths_all_s[curr_layer]]
@@ -831,7 +831,7 @@ for curr_layer in range(num_layers):
         # from c_cost import calculate_cost
         # actual_cost = calculate_cost(route_xy)
         
-        gcode = generate_gcode(route_xy, channel, True, (xsize_b - xsize_s), (ysize_b - ysize_s), dz, layer_thickness, gcode_rel, subdir_output, curr_layer, file2)
+        gcode = generate_gcode(route_xy, channel, True, (xsize_b - xsize_s)/2, (ysize_b - ysize_s)/2, dz, layer_thickness, gcode_rel, subdir_output, curr_layer, file2)
     
         xi = route_xy[0][0][0]
         yi = route_xy[0][0][2]      
@@ -848,7 +848,7 @@ for curr_layer in range(num_layers):
         print(coords)
         mk.move(x = -coords[0], y = -coords[1])
         mk.move(z = dz)
-        mk.move(x = -(xsize_b - xsize_s), y = -(ysize_b - ysize_s))
+        #mk.move(x = (xsize_b - xsize_s)/2, y = (ysize_b - ysize_s)/2)
     else:
         channel = 1
         gcode = generate_gcode(route_xy, channel, False, 0, 0, dz, layer_thickness, gcode_rel, subdir_output, curr_layer, file)

@@ -577,22 +577,16 @@ def file_read(fid, com, baud, dx, dy):
                     if split_line[0] == 'T0':
                         handle.write(str.encode('G1 X{} + Y{}\n'.format(-dx, -dy))) #Reads in text file (GCode) line by line and sends commands to M2
                         print(split_line[0])
-                        read = handle.readline()
-                        while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
-                            read = handle.readline()
                     if split_line[0] == 'T1':
                         handle.write(str.encode('G1 X{} + Y{}\n'.format(dx, dy))) #Reads in text file (GCode) line by line and sends commands to M2
                         print(split_line[0])
-                        read = handle.readline()
-                        while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
-                            read = handle.readline()
                 else:
                     handle.write(str.encode('{}\n'.format(split_line[0]))) #Reads in text file (GCode) line by line and sends commands to M2
                     print(split_line[0])
-                    read = handle.readline()
-                    if split_line[0][0] != 'M':
-                        while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
-                            read = handle.readline()
+                read = handle.readline()
+                if split_line[0][0] != 'M':
+                    while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
+                        read = handle.readline()
 
     time.sleep(2)
     print('Print complete!\nSerial port closed')
