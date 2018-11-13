@@ -24,19 +24,37 @@ linespace = 0.4 # mm
 '''
 BODY SLICING
 '''
-file = 'Size3_body2.stl' # Beats30x30x10   Country30x20x10   HolePlate50x20x10   Square30x30x10
-file2 = 'Size3_support2.stl' # Beats30x30x10   Country30x20x10   HolePlate50x20x10   Square30x30x10
+file = 'Size3_body3.stl' # Beats30x30x10   Country30x20x10   HolePlate50x20x10   Square30x30x10
+file2 = 'Size3_support3.stl' # Beats30x30x10   Country30x20x10   HolePlate50x20x10   Square30x30x10
 subdir_models = "models"
 subdir_output = "output"
 layer_thickness = dz
-width = 50      # X
-height = 50      # Y
-scale = True # True means that the part is NOT being scaled
+width = 46.1123205      # X
+height = 46.103381999999996      # Y
+scale = False # True means that the part is NOT being scaled
 svg2 = False
 dxf = False
 verbose = False
 quiet = False
+
 xsize_b, ysize_b, paths_all_b = command_line(file, subdir_models, subdir_output, layer_thickness, width, height, scale, svg2, dxf, verbose, quiet)
+
+'''
+SUPPORT SLICING
+'''
+subdir_models = "models"
+subdir_output = "output"
+layer_thickness = dz
+width = 37.060593      # X
+height = 37.060347      # Y
+scale = False # True means that the part is NOT being scaled
+svg2 = False
+dxf = False
+verbose = False
+quiet = False
+# Support material XY resolution
+linespace_s = 2 # mm
+
 xsize_s, ysize_s, paths_all_s = command_line(file2, subdir_models, subdir_output, layer_thickness, width, height, scale, svg2, dxf, verbose, quiet)
 
 num_layers = len(paths_all_b)
@@ -56,7 +74,7 @@ for curr_layer in range(num_layers):
     
     gcode_rel = True    # True: relative coordinates, False: absolute
     
-    importance_init_dist = 1.1   # 0: all initial distances are equal, 1: actual initial distances, >1: increased effect. Switch completely off to show how the FDM process path would look like (lots of jumps - start/stops). Increase this value if "jumps" over large distances are discovered.
+    importance_init_dist = 1.5   # 0: all initial distances are equal, 1: actual initial distances, >1: increased effect. Switch completely off to show how the FDM process path would look like (lots of jumps - start/stops). Increase this value if "jumps" over large distances are discovered.
     dir_neighbor = 4       # Direct (hor/ver) neighbours. Multiplies all but the direct distances.
     indir_neighbor = 16      # Indirect (diagonal) neighbours. Multiplies all but the direct and indirect distances.
     cont_multiplier = 16     # multiplies each distance that is NOT a contour
@@ -400,25 +418,6 @@ for curr_layer in range(num_layers):
             y1 = grid[idxi][route[idxi][ii+1]][1]
             route_xy_temp.append([x0, x1, y0, y1])
         route_xy.append(route_xy_temp)
-    
-    ''' ####################################################################### '''
-    ''' PLOT '''
-    ''' ####################################################################### '''
-    # from c_plot import plot_lines, plot_grid
-    # gridcolor = [0.9,0.9,0.9]
-    # markerstyle = '.'
-    # plot_grid(grid_del, linespace, min_x, max_x, min_y, max_y, plotlayer, gridcolor, markerstyle)
-    # plot_lines(route_xy, plotlayer)
-    # gridcolor = 'k'
-    # markerstyle = '.'
-    # plot_grid(grid, linespace, min_x, max_x, min_y, max_y, plotlayer, gridcolor, markerstyle)
-    # import matplotlib.pyplot as plt
-    # plt.figure(curr_layer)
-    # plt.axis('equal')
-    # plt.show()
-    
-    # from c_cost import calculate_cost
-    # actual_cost = calculate_cost(route_xy)
 
     xi = route_xy[0][0][0]
     yi = route_xy[0][0][2]      
@@ -435,22 +434,6 @@ for curr_layer in range(num_layers):
     print(coords)
     mk.move(x = -coords[0], y = -coords[1]) 
         
-    # Support material XY resolution
-    linespace_s = 2 # mm
-    
-    '''
-    SUPPORT SLICING
-    '''
-    subdir_models = "models"
-    subdir_output = "output"
-    layer_thickness = dz
-    width = 50      # X
-    height = 50      # Y
-    scale = True # True means that the part is NOT being scaled
-    svg2 = False
-    dxf = False
-    verbose = False
-    quiet = False
     from c_gcode import generate_gcode
     
     num_layers_s = len(paths_all_s)
@@ -811,25 +794,6 @@ for curr_layer in range(num_layers):
                 y1 = grid[idxi][route[idxi][ii+1]][1]
                 route_xy_temp.append([x0, x1, y0, y1])
             route_xy.append(route_xy_temp)
-        
-        ''' ####################################################################### '''
-        ''' PLOT '''
-        ''' ####################################################################### '''
-        # from c_plot import plot_lines, plot_grid
-        # gridcolor = [0.9,0.9,0.9]
-        # markerstyle = '.'
-        # plot_grid(grid_del, linespace, min_x, max_x, min_y, max_y, plotlayer, gridcolor, markerstyle)
-        # plot_lines(route_xy, plotlayer)
-        # gridcolor = 'k'
-        # markerstyle = '.'
-        # plot_grid(grid, linespace, min_x, max_x, min_y, max_y, plotlayer, gridcolor, markerstyle)
-        # import matplotlib.pyplot as plt
-        # plt.figure(curr_layer)
-        # plt.axis('equal')
-        # plt.show()
-        
-        # from c_cost import calculate_cost
-        # actual_cost = calculate_cost(route_xy)
         
         gcode = generate_gcode(route_xy, channel, True, (xsize_b - xsize_s)/2, (ysize_b - ysize_s)/2, dz, layer_thickness, gcode_rel, subdir_output, curr_layer, file2)
     
