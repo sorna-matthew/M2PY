@@ -1,26 +1,27 @@
-import m2py as mp
-
-num_body_layers = 28
+output_directory = 'D:\\M2PY\\trunk\\JM_slicer\\output\\'
+output_filename = 'test_cone_all.txt'
+num_body_layers = 70
+body_base_filename = 'test_cone'
+support = False
 num_support_layers = 13
+support_base_filename = 'test_cone_support'
 
-with open('D:\\M2PY\\trunk\\JM_slicer\\output\\Size3_all3.txt', 'w') as f_all:
+with open('{}{}.txt'.format(output_directory, output_filename), 'w') as f_all:
     f_all.write('G28\n')
     f_all.write('G91\n')
-    f_all.write('G1 F750\n')
-    f_all.write('G1 X50 Y50 Z-74.1\n')
+    f_all.write('G1 F750\n') # Specify printing speed in mm/s * 60
+    f_all.write('G1 X50 Y50 Z-74.1\n') # Specify starting location relative to fully homed position
     for i in range(num_body_layers):
-        fileid = 'D:\\M2PY\\trunk\\JM_slicer\\output\\Size3_body3_{}.cnc'.format(i)
+        fileid = '{}{}_{}.cnc'.format(output_directory, body_base_filename, i)
         f1 = open(fileid, 'r')
         for line in f1:
             f_all.write(line)
         f1.close()
         
-        if i <= (num_support_layers-1):
-            fileid = 'D:\\M2PY\\trunk\\JM_slicer\\output\\Size3_support3_{}.cnc'.format(i)
-            f2 = open(fileid, 'r')
-            for line in f2:
-                f_all.write(line)
-            f2.close()
-            
-fileid = 'D:\\M2PY\\trunk\\JM_slicer\\output\\Size3_all3.txt'
-#mp.file_read(fileid, 'COM3',115200, -36.1, 0)
+        if support:
+            if i <= (num_support_layers-1):
+                fileid = '{}{}_{}.cnc'.format(output_directory, support_base_filename, i)
+                f2 = open(fileid, 'r')
+                for line in f2:
+                    f_all.write(line)
+                f2.close()
