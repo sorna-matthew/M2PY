@@ -1,7 +1,7 @@
 output_directory = 'D:\\M2PY\\trunk\\JM_slicer\\output\\'
-output_filename = 'test_cone_all.txt'
-num_body_layers = 70
-body_base_filename = 'test_cone'
+output_filename = 'A_all'
+num_body_layers = 1
+body_base_filename = 'A'
 support = False
 num_support_layers = 13
 support_base_filename = 'test_cone_support'

@@ -24,8 +24,8 @@ linespace = 0.25 # mm
 '''
 BODY SLICING
 '''
-file = 'Size3_body4.stl' # Beats30x30x10   Country30x20x10   HolePlate50x20x10   Square30x30x10
-file2 = 'Size3_support4.stl' # Beats30x30x10   Country30x20x10   HolePlate50x20x10   Square30x30x10
+file = 'Size3_body2.stl' # Beats30x30x10   Country30x20x10   HolePlate50x20x10   Square30x30x10
+file2 = 'Size3_support2.stl' # Beats30x30x10   Country30x20x10   HolePlate50x20x10   Square30x30x10
 subdir_models = "models"
 subdir_output = "output"
 layer_thickness = dz
@@ -80,7 +80,7 @@ for curr_layer in range(num_layers):
     cont_multiplier = 16     # multiplies each distance that is NOT a contour
     hor_multiplier = 50     # multiplies each distance that is NOT horizontal
     ver_multiplier = 2    # 1 multiplies each distance that is NOT vertical
-    deleteallbut =  0   # 2 Delete all nodes but none (0), 2, 3, 4, or 5 near the edges. Only works with a high hor_multiplier
+    deleteallbut =  2   # 2 Delete all nodes but none (0), 2, 3, 4, or 5 near the edges. Only works with a high hor_multiplier
     shortendeldist = 10000000   # Decrease distance of the nodes to the left and right of deleted nodes to each other by x/factor. This factor is important when inner nodes away from the contour are selected.
 
     plotlayer = 0
@@ -462,7 +462,7 @@ for curr_layer in range(num_layers):
         cont_multiplier = 16     # multiplies each distance that is NOT a contour
         hor_multiplier = 8     # multiplies each distance that is NOT horizontal
         ver_multiplier = 8    # 1 multiplies each distance that is NOT vertical
-        deleteallbut =  0   # 2 Delete all nodes but none (0), 2, 3, 4, or 5 near the edges. Only works with a high hor_multiplier
+        deleteallbut =  2   # 2 Delete all nodes but none (0), 2, 3, 4, or 5 near the edges. Only works with a high hor_multiplier
         shortendeldist = 10000000   # Decrease distance of the nodes to the left and right of deleted nodes to each other by x/factor. This factor is important when inner nodes away from the contour are selected.
 
         plotlayer = 0

@@ -75,37 +75,37 @@ class Makergear:
             self.handle.write(str.encode('M112\n'))
             self.close()
             raise ValueError('Emergency Stop! Turning off channels and disconnecting from {}'.format(self.com))
-    
+
     # G2/G3
     def arc(self, x = 0, y = 0, i = 0, j = 0, direction = 'ccw'):
         r = np.sqrt((x - i)**2 + (y - j)**2)
         start_ang = np.angle(i*-1 + j*-1j)
         stop_ang = np.angle((x-i)*1 + (y-j)*1j)
-        
+
         if start_ang < 0:
             start_ang = start_ang + 2*np.pi
-            if stop_ang > 0:    
+            if stop_ang > 0:
                 stop_ang = stop_ang + 2*np.pi
-                
+
         if stop_ang < 0:
             stop_ang = stop_ang + 2*np.pi
 
         if direction == 'ccw':
             if stop_ang > start_ang:
-                dtheta = (stop_ang - start_ang) 
+                dtheta = (stop_ang - start_ang)
                 s = int(np.ceil((r*dtheta)))
                 theta = np.linspace(start_ang, stop_ang, s)
             elif start_ang > stop_ang:
                 stop_ang = stop_ang + 2*np.pi
-                dtheta = (stop_ang - start_ang) 
+                dtheta = (stop_ang - start_ang)
                 s = int(np.ceil((r*dtheta)))
                 theta = np.linspace(start_ang, stop_ang, s)
             elif start_ang == stop_ang:
                 stop_ang = stop_ang + 2*np.pi
-                dtheta = (stop_ang - start_ang) 
+                dtheta = (stop_ang - start_ang)
                 s = int(np.ceil((r*dtheta)))
                 theta = np.linspace(start_ang, stop_ang, s)
-            
+
         elif direction == 'cw':
             if stop_ang > start_ang:
                 dtheta = 2*np.pi - (stop_ang - start_ang)
@@ -117,10 +117,10 @@ class Makergear:
                 theta = np.flip(np.linspace(stop_ang, start_ang, s), axis = 0)
             elif start_ang == stop_ang:
                 stop_ang = stop_ang + 2*np.pi
-                dtheta = (stop_ang - start_ang) 
+                dtheta = (stop_ang - start_ang)
                 s = int(np.ceil((r*dtheta)))
                 theta = np.flip(np.linspace(start_ang, stop_ang, s), axis = 0)
-           
+
         xpts = r*np.cos(theta)
         ypts = r*np.sin(theta)
 
@@ -458,7 +458,7 @@ class Makergear:
         y_coord = coord_array[:,1]
         z_coord = coord_array[:,2]
         ch_split_index = ch_split_index.astype(int)
-        
+
         start_pt = [x_coord[0], y_coord[0], z_coord[0]]
         end_pt = [x_coord[-1], y_coord[-1], z_coord[-1]]
 
@@ -477,7 +477,7 @@ class Makergear:
         xmax = np.max(x_coord)
         ymin = np.min(y_coord)
         ymax = np.max(y_coord)
-        
+
         xymax = (xmax>=ymax)*xmax + (ymax>xmax)*ymax
         xymin = (xmin<=ymin)*ymin + (ymin<xmin)*ymin
 
@@ -515,6 +515,56 @@ class Makergear:
         plt.title('M2PCS Print Path Visualization')
         plt.show()
         if self.verbose: print('Generating path visualization')
+
+    def obs_gen(self, ds):
+        """
+        Takes the (x, y, z) coordinates generated from mp.mopen(printout = 0), and plots them into a 3D line graph to check a print path before actually sending commands to the Makergear. Visualization function will use whatever coordinate system you explicity designate using coord. If coord isn't explicitly called, the coordinate system used by the visualization tool will be absolute. When using path_vis, the file directory of the path coordinates needs to be explicity set, unlike when it is implictly called inside mclose.
+        """
+        raw_data = np.empty((1,6))
+
+        if self.current_coord_sys == 'abs':
+            with open(self.fid, "r") as data:
+                for line in data:
+                    raw = line.split(' ')
+                    raw_data = np.vstack((raw_data, raw))
+                    
+        num_obs = raw_data.shape[0]
+        minpts = []
+        maxpts = []
+
+        for i in range(num_obs - 1):
+            x1 = float(raw_data[i][0])
+            y1 = float(raw_data[i][1])
+            z1 = float(raw_data[i][2])
+            x2 = float(raw_data[i+1][0])
+            y2 = float(raw_data[i+1][1])
+            z2 = float(raw_data[i+1][2])
+
+            minpt_temp = np.array([(x1<=x2)*x1 + (x2<x1)*x2, (y1<=y2)*y1 + (y2<y1)*y2, (z1<=z2)*z1 + (z2<z1)*z2])
+            maxpt_temp = np.array([(x1>=x2)*x1 + (x2>x1)*x2, (y1>=y2)*y1 + (y2>y1)*y2, (z1>=z2)*z1 + (z2>z1)*z2])
+
+            dx = x2 - x1
+            dy = y2 - y1
+            dz = z2 - z1
+
+            if (abs(dx) >= abs(dy)) and dz == 0:
+                minpt = minpt_temp + [0, -ds/2, 0]
+                maxpt = maxpt_temp + [0, +ds/2, +ds]
+            elif (abs(dy) > abs(dx)) and dz == 0:
+                minpt = minpt_temp + [-ds/2, 0, 0]
+                maxpt = maxpt_temp + [+ds/2, 0,  +ds]
+            elif dz != 0:
+                minpt = minpt_temp + [-ds/2, -ds/2, 0]
+                maxpt = maxpt_temp + [+ds/2, +ds/2, 0]
+
+            minpts = np.append(minpts, minpt)
+            maxpts = np.append(maxpts, maxpt)
+            
+            minpts.shape = (int(len(minpts)/3), 3)
+            maxpts.shape = (int(len(maxpts)/3), 3)
+
+        return minpts, maxpts
+
 
 #Additional functions outside of the M2 CLASS
 def prompt(com, baud):

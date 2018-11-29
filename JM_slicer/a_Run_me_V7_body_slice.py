@@ -18,19 +18,19 @@ mk.coord_sys(coord_sys = 'rel')
 mk.home(axes = 'X Y Z')
 mk.move(x = 25, y = 40, z = -82.7, track = 0)
 mk.set_current_coords(x = 0, y = 0, z = 0)
-dz = 0.25*0.85 # mm
-linespace = 0.25 # mm
+dz = 5 # mm
+linespace = 1.2 # mm
 
 '''
 BODY SLICING
 '''
-file = 'test_cone.stl' # Beats30x30x10   Country30x20x10   HolePlate50x20x10   Square30x30x10
+file = 'A.stl' # Beats30x30x10   Country30x20x10   HolePlate50x20x10   Square30x30x10
 subdir_models = "models"
 subdir_output = "output"
 layer_thickness = dz
-width = 46.1123205      # X
-height = 46.103381999999996      # Y
-scale = True # True means that the part is NOT being scaled
+width = 16.748047*3      # X
+height = 17.895508*3     # Y
+scale = False # True means that the part is NOT being scaled
 svg2 = False
 dxf = False
 verbose = False
@@ -41,7 +41,7 @@ num_layers = len(paths_all_b)
 
 for curr_layer in range(num_layers):
     layer_path = [paths_all_b[curr_layer]]
-    channel = 1
+    channel = 2
     # TSP settings
     depot = 0 # == starting point
 
@@ -50,7 +50,7 @@ for curr_layer in range(num_layers):
     best_endp = [False, -2147483647]    # Find the best endpoint automatically, distance to depot
     kPenalty = 2147483647  # Penalty for all points. If penalty is lower than a specific distance, the point is skipped
     ind_layers = True     # Independent layers treats all layers individually: starting point independent of the previous layer. This option overrides the 'endp' option for all but the first [0] layer if False.
-    best_start_and_end_pt = False    # Finds the best start and endpoint
+    best_start_and_end_pt = True    # Finds the best start and endpoint
 
     gcode_rel = True    # True: relative coordinates, False: absolute
 
@@ -58,9 +58,9 @@ for curr_layer in range(num_layers):
     dir_neighbor = 4       # Direct (hor/ver) neighbours. Multiplies all but the direct distances.
     indir_neighbor = 16      # Indirect (diagonal) neighbours. Multiplies all but the direct and indirect distances.
     cont_multiplier = 16     # multiplies each distance that is NOT a contour
-    hor_multiplier = 50     # multiplies each distance that is NOT horizontal
+    hor_multiplier = 2     # multiplies each distance that is NOT horizontal
     ver_multiplier = 2    # 1 multiplies each distance that is NOT vertical
-    deleteallbut =  2   # 2 Delete all nodes but none (0), 2, 3, 4, or 5 near the edges. Only works with a high hor_multiplier
+    deleteallbut =  0   # 2 Delete all nodes but none (0), 2, 3, 4, or 5 near the edges. Only works with a high hor_multiplier
     shortendeldist = 10000000   # Decrease distance of the nodes to the left and right of deleted nodes to each other by x/factor. This factor is important when inner nodes away from the contour are selected.
 
     plotlayer = 0
