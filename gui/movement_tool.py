@@ -1,5 +1,5 @@
 #[M2PCS] Movement Tool
-from tkinter import Tk, Label, Button, Entry, DoubleVar
+from tkinter import Tk, Label, Button, Entry, DoubleVar, StringVar
 from tkinter.ttk import Combobox
 import serial.tools.list_ports
 import m2py_old as mp
@@ -7,11 +7,13 @@ import m2py_old as mp
 
 window = Tk()
 window.title('[M2PCS] Movement Tool')
-window.geometry('640x415')
+window.geometry('660x415')
 
 xcoord = DoubleVar()
 ycoord = DoubleVar()
 zcoord = DoubleVar()
+rspeed = StringVar()
+rspeed.set('0')
 
 lbl_xy = Label(text = 'X/Y', font = ('Courier New',12))
 lbl_xy.grid(column = 1, row = 1)
@@ -100,6 +102,19 @@ btn_home_y.grid(column = 8, row = 1)
 btn_home_z = Button(text = 'Home Z', font = ('Courier New',12), state = 'disabled', bg = 'lightgray')
 btn_home_z.grid(column = 9, row = 1)
 
+#Rotate Buttons
+btn_rotate_p = Button(text = 'ROTATE +', font = ('Courier New',10), state = 'disabled', bg = 'lightgray')
+btn_rotate_p.grid(column = 9, row = 2)
+
+entry_rotate = Entry(fg = 'black', width = 6, textvariable = rspeed)
+entry_rotate.grid(column = 8, row = 2)
+
+btn_rotate_n = Button(text = 'ROTATE -', font = ('Courier New',10), state = 'disabled', bg = 'lightgray')
+btn_rotate_n.grid(column = 7, row = 2)
+
+btn_rotate_set = Button(text = 'SET SPEED', font = ('Courier New',10), state = 'disabled', bg = 'lightgray')
+btn_rotate_set.grid(column = 8, row = 3)
+
 #COMPORT
 lbl_com = Label(window, text = 'COMPORT: ****',font = ("Courier New", 8), fg = 'red')
 lbl_com.grid(column = 0, row = 9, sticky = 'W', columnspan = 3, pady = (20, 0))
@@ -144,6 +159,25 @@ def set_speed():
     lbl_speed.configure(text = 'BAUDRATE: {} BPS'.format(speed), fg = 'blue')    
 btn_speed_set.config(command = set_speed)
 
+#SET Rotate
+def set_rotate():
+    global rotate
+    global mg
+    rotate = int(entry_rotate.get())
+    mp.rotate(mg, speed = rotate)
+btn_rotate_set.config(command = set_rotate)
+
+#UPDATE Rotate
+def update_rotate(direction = 'up'):
+    global rotate
+    if direction == 'up':
+        rotate = int(entry_rotate.get()) + 1
+    elif direction == 'down':
+        rotate = int(entry_rotate.get()) - 1
+    rspeed.set(str(rotate))
+btn_rotate_p.config(command = lambda: update_rotate(direction = 'up'))
+btn_rotate_n.config(command = lambda: update_rotate(direction = 'down'))
+
 def connect():
     global connect_status
     global mg
@@ -160,6 +194,9 @@ def connect():
     btn_ym.configure(state = 'normal')
     btn_zp.configure(state = 'normal')
     btn_zm.configure(state = 'normal')
+    btn_rotate_p.configure(state = 'normal')
+    btn_rotate_n.configure(state = 'normal')
+    btn_rotate_set.configure(state = 'normal')
     btn_home_all.configure(state = 'normal')
     btn_home_x.configure(state = 'normal')
     btn_home_y.configure(state = 'normal')

@@ -214,7 +214,20 @@ def speed(handle, speed = 30):
             read = handle.readline()
             time.sleep(0.06)
         print('Changing movement speed to {} mm/s'.format(speed))
-    
+
+def rotate(handle, speed = 0):
+    """
+    Sets the rotation speed of the printer to the specified speed
+    """
+    global pflag
+    if pflag == 1:
+        handle.write(str.encode('M9 S{}\n'.format(speed)))
+        read = handle.readline()
+        while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
+            read = handle.readline()
+            time.sleep(0.06)
+        print('Changing rotation speed to {} mm/s'.format(speed))
+		    
 # G2/G3
 def arc(handle, x = 0, y = 0, z = 0, i = 0, j = 0, direction = 'ccw'):
     """
