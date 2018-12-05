@@ -7,6 +7,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 
+plt.close("all")
+
 # intersection function
 def box_intersect(minpt, maxpt, p0, p1):
     n1 = [[1, 0, 0],[0, 1, 0],[0, 0, 1]]
@@ -19,7 +21,7 @@ def box_intersect(minpt, maxpt, p0, p1):
                 intpt = list(intpt)
                 if np.logical_and(np.less_equal(minpt, intpt), np.less_equal(intpt, maxpt)).all() and np.logical_and(np.less_equal(p0, intpt), np.less_equal(intpt, p1)).all():
                     intersect = True
-                    plt.scatter(intpt[0], intpt[1], intpt[2], marker = 'x', color = 'r', linewidth = 12)
+                    #plt.scatter(intpt[0], intpt[1], intpt[2], marker = 'x', color = 'r', linewidth = 12)
                     
     for normal2 in n2:
             intpt = isect_line_plane_v3(p0, p1, minpt, normal2)
@@ -27,7 +29,7 @@ def box_intersect(minpt, maxpt, p0, p1):
                 intpt = list(intpt)
                 if np.logical_and(np.less_equal(minpt, intpt), np.less_equal(intpt, maxpt)).all() and np.logical_and(np.less_equal(p0, intpt), np.less_equal(intpt, p1)).all():
                     intersect = True
-                    plt.scatter(intpt[0], intpt[1], intpt[2], marker = 'x', color = 'r', linewidth = 12)
+                    #plt.scatter(intpt[0], intpt[1], intpt[2], marker = 'x', color = 'r', linewidth = 12)
 
             
     return intersect
@@ -156,7 +158,7 @@ def build_path(minpts, maxpts, p0, p1):
         start_add = False
         goal_add = False
         
-        prand = [np.random.randint(0, max(maxpts[:,0])),np.random.randint(0, max(maxpts[:,1])), np.random.randint(max(maxpts[:,2]) + 25, max(maxpts[:,1]) + 50)]
+        prand = [np.random.randint(0, max(maxpts[:,0])),np.random.randint(0, max(maxpts[:,1])), np.random.randint(max(maxpts[:,2]) + 25, max(maxpts[:,2]) + 50)]
         
         # Does nozzle hit when in random position?
         iscollision_list4 = []
@@ -222,9 +224,9 @@ def build_path(minpts, maxpts, p0, p1):
 mk = mp.Makergear('COM3',115200, printout = 0)
 mk.coord_sys(coord_sys = 'rel')
 mk.home()
-mk.move(x = 10, y = 45, z = -96, track = 0)
+mk.move(x = 10, y = 40, z = -101.2, track = 0)
 mk.coord_sys(coord_sys = 'abs')
-mk.speed(speed = 30)
+mk.speed(speed = 20)
 mk.set_current_coords(x = 0, y = 0, z = 0)
 zheight = 0
 dz = 0.4
@@ -233,19 +235,20 @@ coords_2 = (np.array([[0,0], [-9,0], [-9,9], [-3,9], [-3,12], [-9,12], [-9,15], 
 coords_0 = (np.array([[0,0], [9,0], [9,15], [0,15], [0,0], [3,0], [3,3], [6,3], [6,12], [3,12], [3,3], [3,0], [0,0], [-24,0]]) + [24,0])*3
 mk.on(1)
 
-for i in range(15):
+for i in range(20):
     for coord in coords_5:
-        mk.move(x = coord[0], y = coord[1], z = zheight)
+        mk.move(x = coord[0]+i*0.1, y = coord[1], z = zheight)
     for coord in coords_2:
-        mk.move(x = coord[0], y = coord[1], z = zheight)
+        mk.move(x = coord[0]+i*0.05, y = coord[1], z = zheight)
     for coord in coords_0:
-        mk.move(x = coord[0], y = coord[1], z = zheight)
+        mk.move(x = coord[0]+i*0.1, y = coord[1], z = zheight)
         
     zheight = zheight + dz
     mk.move(x = coord[0], y = coord[1], z = zheight)  
 
 mk.off(1)
 mk.close()
+
 minpts, maxpts = mk.obs_gen(ds = 0.4)
 
 p0 = [4.5, 4.5, 0.4]
@@ -269,17 +272,19 @@ for j in range(minpts.shape[0]):
         ax1.set_zlabel('Z axis [mm]')
 elapsed = time.time() - t0
 print('Elapsed time for path building: {} [sec]\n'.format(elapsed))
+path_length = len(path[:,0])
+print('Path length: {}\n'.format(path_length))
 #%%
         
 mk = mp.Makergear('COM3',115200, printout = 0)
 mk.coord_sys(coord_sys = 'rel')
 mk.home()
-mk.move(x = 14, y = 51, z = -101, track = 0)
+mk.move(x = 10, y = 40, z = -101.2, track = 0)
 mk.coord_sys(coord_sys = 'abs')
 mk.speed(speed = 15)
 p0 = path[0]
-mk.set_current_coords(x = p0[0], y = p0[1], z = p0[2])
-
+mk.set_current_coords(x = 0, y = 0, z = p0[2])
+mk.move(x = p0[0], y = p0[1], z = p0[2])
 mk.on(2)
 z_old = 0
 for pt in path:
