@@ -21,7 +21,7 @@ def box_intersect(minpt, maxpt, p0, p1):
                 intpt = list(intpt)
                 if np.logical_and(np.less_equal(minpt, intpt), np.less_equal(intpt, maxpt)).all() and np.logical_and(np.less_equal(p0, intpt), np.less_equal(intpt, p1)).all():
                     intersect = True
-                    #plt.scatter(intpt[0], intpt[1], intpt[2], marker = 'x', color = 'r', linewidth = 12)
+                    plt.scatter(intpt[0], intpt[1], intpt[2], marker = 'x', color = 'r', linewidth = 12)
                     
     for normal2 in n2:
             intpt = isect_line_plane_v3(p0, p1, minpt, normal2)
@@ -29,7 +29,7 @@ def box_intersect(minpt, maxpt, p0, p1):
                 intpt = list(intpt)
                 if np.logical_and(np.less_equal(minpt, intpt), np.less_equal(intpt, maxpt)).all() and np.logical_and(np.less_equal(p0, intpt), np.less_equal(intpt, p1)).all():
                     intersect = True
-                    #plt.scatter(intpt[0], intpt[1], intpt[2], marker = 'x', color = 'r', linewidth = 12)
+                    plt.scatter(intpt[0], intpt[1], intpt[2], marker = 'x', color = 'r', linewidth = 12)
 
             
     return intersect
@@ -171,9 +171,9 @@ def build_path(minpts, maxpts, p0, p1):
         if iscollision_list4.any(axis = 0) == False:
             # Checks if prand can connect to pstart
             iscollision_list = []
-            dist = np.sqrt((prand[0]-pstart[0])**2 + (prand[1]-pstart[1])**2 + (prand[2]-pstart[2])**2)
+            dist = np.sqrt((prand[0]-start_path[-1][0])**2 + (prand[1]-start_path[-1][1])**2 + (prand[2]-start_path[-1][2])**2)
             step_num = int(dist*2) # 0.5 mm resolution between sampled points
-            pinter = np.transpose(np.vstack((np.linspace(pstart[0], prand[0], num = step_num), np.linspace(pstart[1], prand[1], num = step_num), np.linspace(pstart[2], prand[2], num = step_num))))
+            pinter = np.transpose(np.vstack((np.linspace(start_path[-1][0], prand[0], num = step_num), np.linspace(start_path[-1][1], prand[1], num = step_num), np.linspace(start_path[-1][2], prand[2], num = step_num))))
             for k in range(len(pinter[:,0])-1):
                 for j in range(minpts.shape[0]):
                     iscollision = box_intersect(minpts[j], maxpts[j], pinter[k], pinter[k+1])
@@ -186,13 +186,13 @@ def build_path(minpts, maxpts, p0, p1):
             
             if iscollision_list.any(axis = 0) == False:
                 start_add = True
-                start_path = np.append(start_path, prand) 
+                start_path = np.vstack((start_path, prand)) 
             
             # Checks if prand can connect to pgoal
             iscollision_list = []
-            dist = np.sqrt((pgoal[0]-prand[0])**2 + (pgoal[1]-prand[1])**2 + (pgoal[2]-prand[2])**2)
+            dist = np.sqrt((goal_path[-1][0]-prand[0])**2 + (goal_path[-1][1]-prand[1])**2 + (goal_path[-1][2]-prand[2])**2)
             step_num = int(dist*2) # 0.5 mm resolution between sampled points
-            pinter = np.transpose(np.vstack((np.linspace(prand[0], pgoal[0], num = step_num), np.linspace(prand[1], pgoal[1], num = step_num), np.linspace(prand[2], pgoal[2], num = step_num))))
+            pinter = np.transpose(np.vstack((np.linspace(prand[0], goal_path[-1][0], num = step_num), np.linspace(prand[1], goal_path[-1][1], num = step_num), np.linspace(prand[2], goal_path[-1][2], num = step_num))))
             for k in range(len(pinter[:,0])-1):
                 for j in range(minpts.shape[0]):
                     iscollision = box_intersect(minpts[j], maxpts[j], pinter[k], pinter[k+1])
@@ -205,13 +205,12 @@ def build_path(minpts, maxpts, p0, p1):
             
             if iscollision_list.any(axis = 0) == False:
                 goal_add = True
-                goal_path = np.append(prand, goal_path)
+                goal_path = np.vstack((prand, goal_path))
             
             if start_add and goal_add:
                 print('Path found!')
                 path_found = True
-                foundpath = np.append(start_path, goal_path)
-                foundpath.shape = (int(len(foundpath)/3),3)
+                foundpath = np.vstack((start_path, goal_path[1:, :]))
             count += 1
             if count > iter_max:
                 raise NameError('Unable to find a suitable path after {} iterations!'.format(iter_max))            
@@ -235,13 +234,13 @@ coords_2 = (np.array([[0,0], [-9,0], [-9,9], [-3,9], [-3,12], [-9,12], [-9,15], 
 coords_0 = (np.array([[0,0], [9,0], [9,15], [0,15], [0,0], [3,0], [3,3], [6,3], [6,12], [3,12], [3,3], [3,0], [0,0], [-24,0]]) + [24,0])*3
 mk.on(1)
 
-for i in range(20):
+for i in range(5):
     for coord in coords_5:
-        mk.move(x = coord[0]+i*0.1, y = coord[1], z = zheight)
+        mk.move(x = coord[0]+i*0, y = coord[1], z = zheight)
     for coord in coords_2:
-        mk.move(x = coord[0]+i*0.05, y = coord[1], z = zheight)
+        mk.move(x = coord[0]+i*0, y = coord[1], z = zheight)
     for coord in coords_0:
-        mk.move(x = coord[0]+i*0.1, y = coord[1], z = zheight)
+        mk.move(x = coord[0]+i*0, y = coord[1], z = zheight)
         
     zheight = zheight + dz
     mk.move(x = coord[0], y = coord[1], z = zheight)  
@@ -253,7 +252,7 @@ minpts, maxpts = mk.obs_gen(ds = 0.4)
 
 p0 = [4.5, 4.5, 0.4]
 p1 = [155, 60, 0.4]
-fillpts = np.array([[4.5, 4.5, 0.4], [22.5, 4.5, 0.4], [22.5, 22.5, 0.4], [4.5, 22.5, 0.4], [4.5, 40.5, 0.4], [22.5, 40.5, 0.4], [39.5, 40.5, 0.4], [57.5, 40.5, 0.4], [57.5, 22.5, 0.4], [39.5, 22.5, 0.4], [39.5, 4.5, 0.4], [57.5, 4.5, 0.4], [76.5, 4.5, 0.4], [76.5, 40.5, 0.4], [94.5, 40.5, 0.4], [94.5, 4.5, 0.4], [85.5, 4.5, 0.4]])
+fillpts = np.array([[4.5, 4.5, 0.4], [22.5, 4.5, 0.4], [22.5, 22.5, 0.4], [4.5, 22.5, 0.4], [4.5, 40.5, 0.4], [22.5, 40.5, 0.4], [39.5, 40.5, 0.4], [57.5, 40.5, 0.4], [57.5, 22.5, 0.4], [39.5, 22.5, 0.4], [39.5, 4.5, 0.4], [57.5, 4.5, 0.4], [76.5, 4.5, 0.4], [76.5, 40.5, 0.4], [94.5, 40.5, 0.4], [94.5, 4.5, 0.4], [85.5, 4.5, 0.4], [85.5, 50, 0.4]])
 
 t0 = time.time()
 path = p0
@@ -266,10 +265,12 @@ ax1 = fig.add_subplot(111, projection='3d')
 ax1.plot(path[:,0], path[:,1], path[:,2])
 for j in range(minpts.shape[0]):
         ax1.bar3d(minpts[j][0],minpts[j][1], minpts[j][2], maxpts[j][0]-minpts[j][0], maxpts[j][1]-minpts[j][1], maxpts[j][2]-minpts[j][2], color = 'b')
-        ax1.auto_scale_xyz([0, 203], [0, 254], [0, 203])
         ax1.set_xlabel('X axis [mm]')
         ax1.set_ylabel('Y axis [mm]')
         ax1.set_zlabel('Z axis [mm]')
+ax1.set_title('Modified RRT Path Planning Results')
+plt.axis('equal')
+ax1.scatter(fillpts[:,0], fillpts[:,1], fillpts[:,2], color = 'k')
 elapsed = time.time() - t0
 print('Elapsed time for path building: {} [sec]\n'.format(elapsed))
 path_length = len(path[:,0])
