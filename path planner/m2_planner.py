@@ -234,7 +234,7 @@ coords_2 = (np.array([[0,0], [-9,0], [-9,9], [-3,9], [-3,12], [-9,12], [-9,15], 
 coords_0 = (np.array([[0,0], [9,0], [9,15], [0,15], [0,0], [3,0], [3,3], [6,3], [6,12], [3,12], [3,3], [3,0], [0,0], [-24,0]]) + [24,0])*3
 mk.on(1)
 
-for i in range(5):
+for i in range(1):
     for coord in coords_5:
         mk.move(x = coord[0]+i*0, y = coord[1], z = zheight)
     for coord in coords_2:
