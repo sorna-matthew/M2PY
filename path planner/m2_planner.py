@@ -220,21 +220,21 @@ def build_path(minpts, maxpts, p0, p1):
     return foundpath
 
 #%%    
-mk = mp.Makergear('COM3',115200, printout = 0)
+mk = mp.Makergear('COM3',115200, printout = 1)
 mk.coord_sys(coord_sys = 'rel')
 mk.home()
-mk.move(x = 10, y = 40, z = -101.2, track = 0)
+mk.move(x = 10, y = 40, z = -99.4, track = 0)
 mk.coord_sys(coord_sys = 'abs')
 mk.speed(speed = 20)
 mk.set_current_coords(x = 0, y = 0, z = 0)
 zheight = 0
-dz = 0.4
+dz = 0.6
 coords_5 = np.array([[0,0], [9,0], [9,9], [3,9], [3,12], [9,12], [9,15], [0,15], [0,6], [6,6], [6,3], [0,3], [0,0]])*3
 coords_2 = (np.array([[0,0], [-9,0], [-9,9], [-3,9], [-3,12], [-9,12], [-9,15], [0,15], [0,6], [-6,6], [-6,3], [0,3], [0,0]]) + [21,0])*3
 coords_0 = (np.array([[0,0], [9,0], [9,15], [0,15], [0,0], [3,0], [3,3], [6,3], [6,12], [3,12], [3,3], [3,0], [0,0], [-24,0]]) + [24,0])*3
 mk.on(1)
 
-for i in range(1):
+for i in range(5):
     for coord in coords_5:
         mk.move(x = coord[0]+i*0, y = coord[1], z = zheight)
     for coord in coords_2:
@@ -248,7 +248,7 @@ for i in range(1):
 mk.off(1)
 mk.close()
 
-minpts, maxpts = mk.obs_gen(ds = 0.4)
+minpts, maxpts = mk.obs_gen(ds = 0.6)
 
 p0 = [4.5, 4.5, 0.4]
 p1 = [155, 60, 0.4]
@@ -280,7 +280,7 @@ print('Path length: {}\n'.format(path_length))
 mk = mp.Makergear('COM3',115200, printout = 0)
 mk.coord_sys(coord_sys = 'rel')
 mk.home()
-mk.move(x = 10, y = 40, z = -101.2, track = 0)
+mk.move(x = 10, y = 40, z = -99.4, track = 0)
 mk.coord_sys(coord_sys = 'abs')
 mk.speed(speed = 15)
 p0 = path[0]

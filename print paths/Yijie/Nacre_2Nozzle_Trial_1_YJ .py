@@ -1,12 +1,12 @@
 import m2py as mp 
 # Imports the M2PY library, and gives it a shorter name, mp
-start = [50, 70, -100] 
+start = [85, 40, -99.4] 
 # The starting global coordinates of the tool_head
 mk = mp.Makergear('COM3', 115200, printout = 0) 
 # Initializes the printer, and when printout = 1, the printer gets sent command. printout = 0 just plots the coordinates in the visualizer
 mk.coord_sys(coord_sys = 'rel')
 # Sets coordinate system to relative
-mk.speed(speed = 25)
+mk.speed(speed = 20)
 # Movement speed in mm/s
 mk.home(axes = 'X Y Z') 
 # Homes all axes to global (0,0,0)
@@ -16,16 +16,16 @@ mk.move(x = start[0], y = start[1], z = start[2], track = 0)
 # Now any movement commands are relative from the starting location, with the nozzle at the build plate.
 
 mk.set_tool_coords(tool=1,x=0,y=0,z=0)
-mk.set_tool_coords(tool=2,x=30,y=0,z=0)
+mk.set_tool_coords(tool=2,x=-37.5,y=0.5,z=0)
 
 dx=0.6*1.1
 dz=0.6*0.7
 layer=6
-col=5*2
+col=4*2
 row=5
 
-nH=12
-nS=4
+nH=14
+nS=6
 
 
 

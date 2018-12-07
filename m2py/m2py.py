@@ -42,9 +42,12 @@ class Makergear:
         if self.printout == 1:
             if self.verbose: print('Disconnecting from {}'.format(self.com))
             self.handle.close()
+            self.alloff()
+            self.rotate(speed = 0)
         elif self.printout == 0:
             self.handle.close()
             self.path_vis()
+            os.remove(self.fid)
 
     # GCode wrappers
     # G0/G1
@@ -477,6 +480,7 @@ class Makergear:
         xmax = np.max(x_coord)
         ymin = np.min(y_coord)
         ymax = np.max(y_coord)
+        zmax = np.max(z_coord)
 
         xymax = (xmax>=ymax)*xmax + (ymax>xmax)*ymax
         xymin = (xmin<=ymin)*ymin + (ymin<xmin)*ymin
@@ -485,7 +489,7 @@ class Makergear:
         ax = fig.gca(projection=Axes3D.name)
         ax.set_xlim3d(xymin, xymax)
         ax.set_ylim3d(xymin, xymax)
-        ax.set_zlim3d(0, 203)
+        ax.set_zlim3d(0, zmax + 5)
         ax.set_xlabel('X axis [mm]')
         ax.set_ylabel('Y axis [mm]')
         ax.set_zlabel('Z axis [mm]')
@@ -624,11 +628,12 @@ def file_read(fid, com, baud, dx, dy):
             split_line = line.split(';') # chops off comments
             if split_line[0] != '':      # makes sure it's not a comment-only line of GCode
                 if split_line[0][0] == 'T':
-                    if split_line[0] == 'T0':
-                        handle.write(str.encode('G1 X{} + Y{}\n'.format(-dx, -dy))) #Reads in text file (GCode) line by line and sends commands to M2
+                    print('switch')
+                    if split_line[0] == 'T0\n':
+                        handle.write(str.encode('T0\n'.format(-dx, -dy))) #Reads in text file (GCode) line by line and sends commands to M2
                         print(split_line[0])
-                    if split_line[0] == 'T1':
-                        handle.write(str.encode('G1 X{} + Y{}\n'.format(dx, dy))) #Reads in text file (GCode) line by line and sends commands to M2
+                    if split_line[0] == 'T1\n':
+                        handle.write(str.encode('T1\n'.format(dx, dy))) #Reads in text file (GCode) line by line and sends commands to M2
                         print(split_line[0])
                 else:
                     handle.write(str.encode('{}\n'.format(split_line[0]))) #Reads in text file (GCode) line by line and sends commands to M2
