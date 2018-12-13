@@ -1,4 +1,4 @@
-# M2PYthon
+# M2PY[thon]
 *Control of the Makergear M2 3D printer using Python*
 
 ---
