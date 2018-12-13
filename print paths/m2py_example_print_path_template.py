@@ -12,6 +12,7 @@ mk.move(x = start[0], y = start[1], z = start[2], track = 0) # Moves the tool he
 mk.on(1)
 mk.move(x = 10)
 mk.arc(x = 10, y = 0, i = 5, j = 0)
+mk.move(z = -5)
 mk.off(1)
 
 # Your code here:

@@ -1,4 +1,3 @@
-
 # M2PYthon
 *Control of the Makergear M2 3D printer using Python*
 
@@ -105,22 +104,26 @@ mk.mclose()
 ```
 
 **set_tool_coords**(*tool=1*, *x=0*, *y=0*, *z=0*): sets internally stored coordinates of each tool, used in switching commands, relative to tool 1 which is defined at [0,0,0]
- ```python
-mk.on(1)
-mk.move(x = 10)
-mk.set_tool_coords(tool = 1, x = 0, y = 0, z = 0)
-mk.set_tool_coords(tool = 2, x = 10, y = 10, z = 0)
-mk.on(2)
-mk.move(x = 10)
-```
 
 **change_tool**(*change_to=1*): This subroutine automatically switches from the current to specified tool
- ```python
+ 
+  ```python
+mk.set_tool_coords(tool = 1, x = 0, y = 0, z = 0)
+mk.set_tool_coords(tool = 2, x = 10, y = 10, z = 0)
 mk.on(1)
 mk.move(x = 10)
-mk.change_tool(change_to = 1)
+mk.off(1)
+mk.change_tool(change_to = 2)
 mk.on(2)
 mk.move(x = 10)
+mk.off(2)
+```
+**set_bed_temp**(*temp=25*, *wait='off'*): Sets the temperature of the heated bed to the specified temp in deg C. If the wait argument is set to `'on'`, the printer will wait for temp to be reached before excecuting other commands. If `'off'` the printer will set the temp without waiting.
+```python
+mk.set_bed_temp(temp = 50, wait = 'on')
+mk.on(1)
+mk.move(x = 10)
+mk.off(1)
 ```
 
 ---

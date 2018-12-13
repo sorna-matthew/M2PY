@@ -35,18 +35,18 @@ class Makergear:
             self.current_coord_sys = 'abs'
             self.handle = open(self.fid, "w")
 
-    def close(self):
+    def close(self, zrange = [0, 203]):
         """
         Closes the specified handle. If self.printout = 1, this function will close the necessary serial object. If prinout = 0, this function will close the specified temporary file and plot a visualization of all relevant movement commands. Visualization function will use whatever coordinate system you explicity designate using coord. If coord isn't explicitly called, the coordinate system used by the visualization tool will be absolute.
         """
         if self.printout == 1:
-            if self.verbose: print('Disconnecting from {}'.format(self.com))
-            self.handle.close()
             self.alloff()
             self.rotate(speed = 0)
+            if self.verbose: print('Disconnecting from {}'.format(self.com))
+            self.handle.close()
         elif self.printout == 0:
             self.handle.close()
-            self.path_vis()
+            self.path_vis(zrange)
             os.remove(self.fid)
 
     # GCode wrappers
@@ -62,12 +62,12 @@ class Makergear:
                 self.coords = self.coords + np.array([x, y, z])
 
             if self.printout == 1:
+                if self.verbose: print('Moving to ({}, {}, {})'.format(x, y, z))
                 self.handle.write(str.encode('G1 X{} Y{} Z{}\n'.format(x, y, z)))
                 read = self.handle.readline()
                 while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
                     read = self.handle.readline()
                     time.sleep(0.06)
-                if self.verbose: print('Moving to ({}, {}, {})'.format(x, y, z))
                 while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
                     read = self.handle.readline()
                     time.sleep(0.06)
@@ -152,12 +152,12 @@ class Makergear:
 
         elif self.current_coord_sys == 'rel':
             if self.printout == 1:
+                if self.verbose: print('Moving in a {} arc to ({},{}) with center ({},{})'.format(direction, x,y,i,j))
                 for jj in range(s-1):
                     old_verbose = self.verbose
                     self.verbose = False
                     self.move(x = dxpts[jj], y = dypts[jj], z = 0)
                     self.verbose = old_verbose
-                if self.verbose: print('Moving in a {} arc to ({},{}) with center ({},{})'.format(direction, x,y,i,j))
             elif self.printout == 0:
                 for jj in range(s-1):
                     self.handle.write('{} {} {} {} {} {}\n'.format(dxpts[jj], dypts[jj], 0, self.channel_status[0], self.channel_status[1], self.channel_status[2]))
@@ -167,30 +167,31 @@ class Makergear:
         Sets the movement speed of the printer to the specified speed in [mm/s] (default 0 mm/sec)
         """
         if self.printout == 1:
+            if self.verbose: print('Setting movement speed to {} mm/s'.format(speed))
             self.handle.write(str.encode('G1 F{}\n'.format(speed*60)))
             read = self.handle.readline()
             while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
                 read = self.handle.readline()
                 time.sleep(0.06)
-            if self.verbose: print('Setting movement speed to {} mm/s'.format(speed))
 
     def rotate(self, speed = 0):
             """
             Sets the rotation speed of the motor to the specified speed [0-127] (default 0)
             """
             if self.printout == 1:
+                if self.verbose: print('Setting rotation speed to {}'.format(int(speed)))
                 self.handle.write(str.encode('M9 S{}\n'.format(int(speed))))
                 read = self.handle.readline()
                 while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
                     read = self.handle.readline()
                     time.sleep(0.06)
-                if self.verbose: print('Setting rotation speed to {}'.format(int(speed)))
 
     def ramp(self, start = 0, stop = 0, seconds = 1):
             """
             Sets the rotation speed of the motor to the specified speed [0-127] (default 0 --> 0)
             """
             if self.printout == 1:
+                if self.verbose: print('Changing rotation from {} to {} in {} seconds'.format(int(start),int(stop), seconds))
                 diff = stop - start
                 steps = abs(stop - start)
                 if steps > 0:
@@ -217,20 +218,18 @@ class Makergear:
                                 read = self.handle.readline()
                                 time.sleep(0.06)
 
-                if self.verbose: print('Changing rotation from {} to {} in {} seconds'.format(int(start),int(stop), seconds))
-
     # G4
     def wait(self, seconds = 0):
         """
         Waits for the specified amount of time (default 0 seconds)
         """
         if self.printout == 1:
+            if self.verbose: print('Waiting for {} seconds'.format(seconds))
             self.handle.write(str.encode('G4 S{}\n'.format(seconds)))
             read = self.handle.readline()
             while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
                     read = self.handle.readline()
                     time.sleep(0.06)
-            if self.verbose: print('Waiting for {} seconds'.format(seconds))
 
     # G28
     def home(self, axes = 'X Y Z'):
@@ -247,12 +246,12 @@ class Makergear:
                 self.coords[2] = 0
 
         if self.printout == 1:
+            if self.verbose: print('Homing {} axes'.format(axes))
             self.handle.write(str.encode('G28 {}\n'.format(axes)))
             read = self.handle.readline()
             while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
                     read = self.handle.readline()
                     time.sleep(0.06)
-            if self.verbose: print('Homing {} axes'.format(axes))
 
     # G90/G91
     def coord_sys(self, coord_sys = 'abs'):
@@ -263,20 +262,20 @@ class Makergear:
 
         if self.printout == 1:
             if self.current_coord_sys == 'abs':
+                if self.verbose: print('Setting to absolute coordinates')
                 self.handle.write(str.encode('G90\n'))
                 read = self.handle.readline()
                 while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
                     read = self.handle.readline()
                     time.sleep(0.06)
-                if self.verbose: print('Setting to absolute coordinates')
 
             elif self.current_coord_sys == 'rel':
+                if self.verbose: print('Setting to relative coordinates')
                 self.handle.write(str.encode('G91\n'))
                 read = self.handle.readline()
                 while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
                     read = self.handle.readline()
                     time.sleep(0.06)
-                if self.verbose: print('Setting to relative coordinates')
 
     # G92
     def set_current_coords(self, x = 0, y = 0, z = 0):
@@ -287,12 +286,12 @@ class Makergear:
         self.coords = [x, y, z]
 
         if self.printout == 1:
+            if self.verbose: print('Changing current position at ({}, {}, {}) to ({}, {}, {})'.format(old_coords[0], old_coords[1], old_coords[2], x, y, z))
             self.handle.write(str.encode('G92 X{} Y{} Z{}\n'.format(x, y, z)))
             read = self.handle.readline()
             while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
                 read = self.handle.readline()
                 time.sleep(0.06)
-                if self.verbose: print('Changing current position at ({}, {}, {}) to ({}, {}, {})'.format(old_coords[0], old_coords[1], old_coords[2], x, y, z))
 
     def return_current_coords(self):
         """
@@ -301,12 +300,34 @@ class Makergear:
         if self.verbose: print('Current position: ({}, {}, {})'.format(self.coords[0], self.coords[1], self.coords[2]))
         return self.coords
 
+    def set_bed_temp(self, temp = 25, wait = 'off'):
+        """
+        Sets the temperature of the heated bed to the specified temp. If the wait argument is set to 'on', the printer will wait for temp to be reached before excecuting other commands. If 'off' the printer will set the temp without waiting.
+        """
+        if temp > 100: 
+            self.close()
+            raise ValueError('Attempting to set heated bed to temperature above upper limit [100C]')
+        
+        if self.printout == 1:
+            if wait == 'off':
+                self.handle.write(str.encode('M140 S{}\n'.format(temp)))
+                if self.verbose: print('Setting bed temp to {}C'.format(temp))
+            elif wait == 'on':
+                self.handle.write(str.encode('M190 S{}\n'.format(temp)))
+                if self.verbose: print('Setting bed temp to {}C and waiting!'.format(temp))
+
+            read = self.handle.readline()
+            while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
+                    read = self.handle.readline()
+                    time.sleep(0.06)
+
     # M2PCS SPECIFIC FUNCTIONS
     def allon(self):
         """
         Turns pneumatic CHANNEL 1, 2, 3 ON
         """
         if self.prinout == 1:
+            if self.verbose: print('Turning all channels on')
             self.handle.write(str.encode('M3\n'))
             read = self.handle.readline()
             while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
@@ -322,7 +343,6 @@ class Makergear:
             while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
                 read = self.handle.readline()
                 time.sleep(0.06)
-            if self.verbose: print('Turning all channels on')
         elif self.printout == 0:
             self.channel_status = np.array([1,1,1])
 
@@ -331,6 +351,7 @@ class Makergear:
         Turns pneumatic CHANNEL 1, 2, 3 OFF
         """
         if self.printout == 1:
+            if self.verbose: print('Turning all channels off')
             self.handle.write(str.encode('M4\n'))
             read = self.handle.readline()
             while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
@@ -346,7 +367,6 @@ class Makergear:
             while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
                 read = self.handle.readline()
                 time.sleep(0.06)
-            if self.verbose: print('Turning all channels off')
         elif self.printout == 0:
             self.channel_status = np.array([0,0,0])
 
@@ -356,13 +376,13 @@ class Makergear:
         Turns pneumatic CHANNEL ON
         """
         if self.printout == 1:
+            if self.verbose: print('Turning on channel {}'.format(channel))
             schannel = 'M{}\n'.format(channel*2 + 1)
             self.handle.write(str.encode(schannel))
             read = self.handle.readline()
             while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
                 read = self.handle.readline()
                 time.sleep(0.06)
-            if self.verbose: print('Turning on channel {}'.format(channel))
         elif self.printout == 0:
             self.channel_status[channel - 1] = 1
 
@@ -372,13 +392,13 @@ class Makergear:
         Turns pneumatic CHANNEL OFF
         """
         if self.printout == 1:
+            if self.verbose: print('Turning off channel {}'.format(channel))
             schannel = 'M{}\n'.format(channel*2 + 2)
             self.handle.write(str.encode(schannel))
             read = self.handle.readline()
             while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
                 read = self.handle.readline()
                 time.sleep(0.06)
-            if self.verbose: print('Turning off channel {}'.format(channel))
         elif self.printout == 0:
             self.channel_status[channel - 1] = 0
 
@@ -387,19 +407,19 @@ class Makergear:
         Sets the delay time (in ms) between a channel turning on and the execution of another command. Can be used to fine tune under extrusion effects, depending on ink viscosity.
         """
         if self.printout == 1:
+            if self.verbose: print('Setting channel delay to {} ms'.format(delay))
             self.handle.write(str.encode('M50 S{}\n'.format(delay)))
             read = self.handle.readline()
             while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
                 read = self.handle.readline()
                 time.sleep(0.06)
-            if self.verbose: print('Setting channel delay to {} ms'.format(delay))
 
     def set_tool_coords(self, tool = 1, x = 0, y = 0, z = 0):
         """
         Sets internally stored coordinates of each tool, used in switching commands
         """
-        self.tool_coords[tool - 1] = [x, y, z]
         if self.verbose: print('Setting coordinates of tool {} to ({},{},{})'.format(tool, x, y, z))
+        self.tool_coords[tool - 1] = [x, y, z]
 
 
     def change_tool(self, change_to = 1):
@@ -408,6 +428,7 @@ class Makergear:
         """
         if self.printout == 1:
             old_tool = self.current_tool
+            if self.verbose: print('Changing from tool {} to tool {}'.format(old_tool, change_to))
             self.alloff()
             old_coord_sys = self.current_coord_sys
             old_coords = self.coords
@@ -418,12 +439,11 @@ class Makergear:
             self.coord_sys(coord_sys = old_coord_sys)
             self.set_current_coords(x = old_coords[0], y = old_coords[1], z = old_coords[2])
 
-            if self.verbose: print('Changing from tool {} to tool {}'.format(old_tool, change_to))
-
-    def path_vis(self):
+    def path_vis(self, zrange):
         """
         Takes the (x, y, z) coordinates generated from mp.mopen(printout = 0), and plots them into a 3D line graph to check a print path before actually sending commands to the Makergear. Visualization function will use whatever coordinate system you explicity designate using coord. If coord isn't explicitly called, the coordinate system used by the visualization tool will be absolute. When using path_vis, the file directory of the path coordinates needs to be explicity set, unlike when it is implictly called inside mclose.
         """
+        if self.verbose: print('Generating path visualization')
         coord_array = np.zeros([1, 3])
         channel_array = np.zeros([1, 3])
 
@@ -487,9 +507,15 @@ class Makergear:
 
         fig = plt.figure()
         ax = fig.gca(projection=Axes3D.name)
+
         ax.set_xlim3d(xymin, xymax)
         ax.set_ylim3d(xymin, xymax)
-        ax.set_zlim3d(0, zmax + 5)
+
+        if zrange == 'fit':
+            ax.set_zlim3d(0, zmax)
+        else:
+            ax.set_zlim3d(zrange[0], zrange[1])
+
         ax.set_xlabel('X axis [mm]')
         ax.set_ylabel('Y axis [mm]')
         ax.set_zlabel('Z axis [mm]')
@@ -518,56 +544,6 @@ class Makergear:
         plt.legend(handles=[ch1_patch, ch2_patch, ch3_patch], loc = 'best')
         plt.title('M2PCS Print Path Visualization')
         plt.show()
-        if self.verbose: print('Generating path visualization')
-
-    def obs_gen(self, ds):
-        """
-        Takes the (x, y, z) coordinates generated from mp.mopen(printout = 0), and plots them into a 3D line graph to check a print path before actually sending commands to the Makergear. Visualization function will use whatever coordinate system you explicity designate using coord. If coord isn't explicitly called, the coordinate system used by the visualization tool will be absolute. When using path_vis, the file directory of the path coordinates needs to be explicity set, unlike when it is implictly called inside mclose.
-        """
-        raw_data = np.empty((1,6))
-
-        if self.current_coord_sys == 'abs':
-            with open(self.fid, "r") as data:
-                for line in data:
-                    raw = line.split(' ')
-                    raw_data = np.vstack((raw_data, raw))
-                    
-        num_obs = raw_data.shape[0]
-        minpts = []
-        maxpts = []
-
-        for i in range(num_obs - 1):
-            x1 = float(raw_data[i][0])
-            y1 = float(raw_data[i][1])
-            z1 = float(raw_data[i][2])
-            x2 = float(raw_data[i+1][0])
-            y2 = float(raw_data[i+1][1])
-            z2 = float(raw_data[i+1][2])
-
-            minpt_temp = np.array([(x1<=x2)*x1 + (x2<x1)*x2, (y1<=y2)*y1 + (y2<y1)*y2, (z1<=z2)*z1 + (z2<z1)*z2])
-            maxpt_temp = np.array([(x1>=x2)*x1 + (x2>x1)*x2, (y1>=y2)*y1 + (y2>y1)*y2, (z1>=z2)*z1 + (z2>z1)*z2])
-
-            dx = x2 - x1
-            dy = y2 - y1
-            dz = z2 - z1
-
-            if (abs(dx) >= abs(dy)) and dz == 0:
-                minpt = minpt_temp + [0, -ds/2, 0]
-                maxpt = maxpt_temp + [0, +ds/2, +ds]
-            elif (abs(dy) > abs(dx)) and dz == 0:
-                minpt = minpt_temp + [-ds/2, 0, 0]
-                maxpt = maxpt_temp + [+ds/2, 0,  +ds]
-            elif dz != 0:
-                minpt = minpt_temp + [-ds/2, -ds/2, 0]
-                maxpt = maxpt_temp + [+ds/2, +ds/2, 0]
-
-            minpts = np.append(minpts, minpt)
-            maxpts = np.append(maxpts, maxpt)
-            
-            minpts.shape = (int(len(minpts)/3), 3)
-            maxpts.shape = (int(len(maxpts)/3), 3)
-
-        return minpts, maxpts
 
 
 #Additional functions outside of the M2 CLASS
@@ -627,17 +603,8 @@ def file_read(fid, com, baud, dx, dy):
         for line in gcode:
             split_line = line.split(';') # chops off comments
             if split_line[0] != '':      # makes sure it's not a comment-only line of GCode
-                if split_line[0][0] == 'T':
-                    print('switch')
-                    if split_line[0] == 'T0\n':
-                        handle.write(str.encode('T0\n'.format(-dx, -dy))) #Reads in text file (GCode) line by line and sends commands to M2
-                        print(split_line[0])
-                    if split_line[0] == 'T1\n':
-                        handle.write(str.encode('T1\n'.format(dx, dy))) #Reads in text file (GCode) line by line and sends commands to M2
-                        print(split_line[0])
-                else:
-                    handle.write(str.encode('{}\n'.format(split_line[0]))) #Reads in text file (GCode) line by line and sends commands to M2
-                    print(split_line[0])
+                handle.write(str.encode('{}\n'.format(split_line[0]))) #Reads in text file (GCode) line by line and sends commands to M2
+                print(split_line[0])
                 read = handle.readline()
                 if split_line[0][0] != 'M':
                     while read[0:2] != b'ok': #Waits for printer to send 'ok' command before sending the next command, ensuring print accuracy
